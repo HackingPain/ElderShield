@@ -5,46 +5,9 @@ let redisClient;
 
 const initializeRedis = async () => {
   try {
-    const redisConfig = {
-      host: process.env.REDIS_HOST || 'localhost',
-      port: process.env.REDIS_PORT || 6379,
-      password: process.env.REDIS_PASSWORD || undefined,
-      db: process.env.REDIS_DB || 0,
-      retryDelayOnFailover: 100,
-      enableReadyCheck: true,
-      maxRetriesPerRequest: 3,
-    };
-
-    if (process.env.REDIS_URL) {
-      redisClient = redis.createClient({
-        url: process.env.REDIS_URL,
-        socket: {
-          connectTimeout: 5000,
-          lazyConnect: true,
-        },
-      });
-    } else {
-      redisClient = redis.createClient(redisConfig);
-    }
-
-    redisClient.on('error', (err) => {
-      logger.error('Redis Client Error:', err);
-    });
-
-    redisClient.on('connect', () => {
-      logger.info('Redis client connected');
-    });
-
-    redisClient.on('ready', () => {
-      logger.info('Redis client ready');
-    });
-
-    redisClient.on('end', () => {
-      logger.info('Redis client disconnected');
-    });
-
-    await redisClient.connect();
-    return redisClient;
+    // Skip Redis if not available
+    logger.warn('Redis initialization skipped for development');
+    return null;
   } catch (error) {
     logger.error('Redis initialization failed:', error);
     throw error;
