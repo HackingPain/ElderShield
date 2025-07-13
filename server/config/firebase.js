@@ -5,10 +5,24 @@ let firebaseApp;
 
 const initializeFirebase = async () => {
   try {
+    // Check if Firebase service account is configured
+    if (!process.env.FIREBASE_SERVICE_ACCOUNT_KEY && !process.env.FIREBASE_PROJECT_ID) {
+      logger.warn('Firebase not configured - skipping Firebase initialization');
+      return null;
+    }
+
     // Initialize Firebase Admin SDK
-    const serviceAccount = process.env.FIREBASE_SERVICE_ACCOUNT_KEY 
-      ? JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY)
-      : require('../config/firebase-service-account.json');
+    let serviceAccount;
+    if (process.env.FIREBASE_SERVICE_ACCOUNT_KEY) {
+      serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_KEY);
+    } else {
+      try {
+        serviceAccount = require('../config/firebase-service-account.json');
+      } catch (error) {
+        logger.warn('Firebase service account file not found - skipping Firebase initialization');
+        return null;
+      }
+    }
 
     firebaseApp = admin.initializeApp({
       credential: admin.credential.cert(serviceAccount),
