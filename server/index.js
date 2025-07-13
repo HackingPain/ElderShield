@@ -128,13 +128,21 @@ async function startServer() {
     await connectDB();
     logger.info('Database connected successfully');
     
-    // Initialize Redis
-    await initializeRedis();
-    logger.info('Redis connected successfully');
+    // Initialize Redis (optional)
+    try {
+      await initializeRedis();
+      logger.info('Redis connected successfully');
+    } catch (error) {
+      logger.warn('Redis connection failed, continuing without Redis:', error);
+    }
     
-    // Initialize Firebase
-    await initializeFirebase();
-    logger.info('Firebase initialized successfully');
+    // Initialize Firebase (optional)
+    try {
+      await initializeFirebase();
+      logger.info('Firebase initialized successfully');
+    } catch (error) {
+      logger.warn('Firebase initialization failed, continuing without Firebase:', error);
+    }
     
     // Start server
     server.listen(PORT, () => {
