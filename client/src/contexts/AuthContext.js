@@ -14,7 +14,7 @@ export const useAuth = () => {
 };
 
 // Configure axios defaults
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const API_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001/api';
 axios.defaults.baseURL = API_URL;
 axios.defaults.withCredentials = true;
 
