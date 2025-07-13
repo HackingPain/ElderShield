@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
-import toast from 'react-hot-toast';
 
 // Create the authentication context
 const AuthContext = createContext();
@@ -15,14 +14,15 @@ export const useAuth = () => {
 };
 
 // Configure axios defaults
-axios.defaults.baseURL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+axios.defaults.baseURL = API_URL;
 axios.defaults.withCredentials = true;
 
 // Authentication Provider Component
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [token, setToken] = useState(localStorage.getItem('token'));
+  const [token, setToken] = useState(localStorage.getItem('seniorcare_token'));
 
   // Set up axios interceptor for token
   useEffect(() => {
@@ -44,7 +44,8 @@ export const AuthProvider = ({ children }) => {
         if (error.response?.status === 401) {
           // Token expired or invalid
           logout();
-          toast.error('Session expired. Please log in again.');
+          // Show user-friendly message
+          showNotification('Session expired. Please log in again.', 'error');
         }
         return Promise.reject(error);
       }
@@ -65,7 +66,7 @@ export const AuthProvider = ({ children }) => {
           setUser(response.data.user);
         } catch (error) {
           console.error('Error loading user:', error);
-          localStorage.removeItem('token');
+          localStorage.removeItem('seniorcare_token');
           setToken(null);
         }
       }
@@ -75,9 +76,22 @@ export const AuthProvider = ({ children }) => {
     loadUser();
   }, [token]);
 
+  // Simple notification function (can be enhanced with toast library)
+  const showNotification = (message, type = 'info') => {
+    // For now, use alert - can be replaced with toast library
+    if (type === 'error') {
+      alert(`Error: ${message}`);
+    } else if (type === 'success') {
+      alert(`Success: ${message}`);
+    } else {
+      alert(message);
+    }
+  };
+
   // Login function
   const login = async (email, password, rememberMe = false) => {
     try {
+      setLoading(true);
       const response = await axios.post('/auth/login', {
         email,
         password,
@@ -87,41 +101,46 @@ export const AuthProvider = ({ children }) => {
       const { user: userData, token: userToken } = response.data;
 
       // Store token
-      localStorage.setItem('token', userToken);
+      localStorage.setItem('seniorcare_token', userToken);
       setToken(userToken);
       setUser(userData);
 
       // Show success message
-      toast.success(`Welcome back, ${userData.firstName}!`);
+      showNotification(`Welcome back, ${userData.firstName}!`, 'success');
 
       return { success: true, user: userData };
     } catch (error) {
       const errorMessage = error.response?.data?.message || 'Login failed';
-      toast.error(errorMessage);
+      showNotification(errorMessage, 'error');
       return { success: false, error: errorMessage };
+    } finally {
+      setLoading(false);
     }
   };
 
   // Register function
   const register = async (userData) => {
     try {
+      setLoading(true);
       const response = await axios.post('/auth/register', userData);
 
       const { user: newUser, token: userToken } = response.data;
 
       // Store token
-      localStorage.setItem('token', userToken);
+      localStorage.setItem('seniorcare_token', userToken);
       setToken(userToken);
       setUser(newUser);
 
       // Show success message
-      toast.success(`Welcome to SeniorCare Hub, ${newUser.firstName}!`);
+      showNotification(`Welcome to SeniorCare Hub, ${newUser.firstName}!`, 'success');
 
       return { success: true, user: newUser };
     } catch (error) {
       const errorMessage = error.response?.data?.message || 'Registration failed';
-      toast.error(errorMessage);
+      showNotification(errorMessage, 'error');
       return { success: false, error: errorMessage };
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -133,10 +152,10 @@ export const AuthProvider = ({ children }) => {
       console.error('Logout error:', error);
     } finally {
       // Clear local storage and state
-      localStorage.removeItem('token');
+      localStorage.removeItem('seniorcare_token');
       setToken(null);
       setUser(null);
-      toast.success('Logged out successfully');
+      showNotification('Logged out successfully', 'success');
     }
   };
 
@@ -147,12 +166,12 @@ export const AuthProvider = ({ children }) => {
       
       // Update user state
       setUser(response.data.user);
-      toast.success('Profile updated successfully');
+      showNotification('Profile updated successfully', 'success');
       
       return { success: true, user: response.data.user };
     } catch (error) {
       const errorMessage = error.response?.data?.message || 'Profile update failed';
-      toast.error(errorMessage);
+      showNotification(errorMessage, 'error');
       return { success: false, error: errorMessage };
     }
   };
@@ -165,11 +184,11 @@ export const AuthProvider = ({ children }) => {
         newPassword,
       });
       
-      toast.success('Password changed successfully');
+      showNotification('Password changed successfully', 'success');
       return { success: true };
     } catch (error) {
       const errorMessage = error.response?.data?.message || 'Password change failed';
-      toast.error(errorMessage);
+      showNotification(errorMessage, 'error');
       return { success: false, error: errorMessage };
     }
   };
@@ -179,11 +198,11 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await axios.post('/auth/forgot-password', { email });
       
-      toast.success('Password reset link sent to your email');
+      showNotification('Password reset link sent to your email', 'success');
       return { success: true, message: response.data.message };
     } catch (error) {
       const errorMessage = error.response?.data?.message || 'Password reset failed';
-      toast.error(errorMessage);
+      showNotification(errorMessage, 'error');
       return { success: false, error: errorMessage };
     }
   };
@@ -196,84 +215,45 @@ export const AuthProvider = ({ children }) => {
         password,
       });
       
-      toast.success('Password reset successfully');
+      showNotification('Password reset successfully', 'success');
       return { success: true };
     } catch (error) {
       const errorMessage = error.response?.data?.message || 'Password reset failed';
-      toast.error(errorMessage);
+      showNotification(errorMessage, 'error');
       return { success: false, error: errorMessage };
     }
   };
 
-  // Verify email function
-  const verifyEmail = async () => {
-    try {
-      await axios.post('/auth/verify-email');
-      
-      // Update user state
-      setUser(prev => ({ ...prev, emailVerified: true }));
-      toast.success('Email verified successfully');
-      
-      return { success: true };
-    } catch (error) {
-      const errorMessage = error.response?.data?.message || 'Email verification failed';
-      toast.error(errorMessage);
-      return { success: false, error: errorMessage };
-    }
-  };
-
-  // Refresh token function
-  const refreshToken = async () => {
-    try {
-      const response = await axios.post('/auth/refresh');
-      
-      const { token: newToken } = response.data;
-      localStorage.setItem('token', newToken);
-      setToken(newToken);
-      
-      return { success: true };
-    } catch (error) {
-      console.error('Token refresh failed:', error);
-      return { success: false };
-    }
-  };
-
-  // Check if user has premium subscription
+  // Utility functions
   const isPremiumUser = () => {
-    return user?.subscriptionTier === 'premium';
+    return user?.subscription_tier === 'premium' || user?.subscription_tier === 'enterprise';
   };
 
-  // Check if user is admin
   const isAdmin = () => {
     return user?.role === 'admin';
   };
 
-  // Check if user is caregiver
   const isCaregiver = () => {
     return user?.role === 'caregiver';
   };
 
-  // Check if user is senior
   const isSenior = () => {
     return user?.role === 'senior';
   };
 
-  // Get user's full name
   const getUserFullName = () => {
     return user ? `${user.firstName} ${user.lastName}` : '';
   };
 
-  // Get user's initials
   const getUserInitials = () => {
     return user 
       ? `${user.firstName?.[0] || ''}${user.lastName?.[0] || ''}`
       : '';
   };
 
-  // Check if subscription is expired
   const isSubscriptionExpired = () => {
-    if (!user?.subscriptionExpiresAt) return false;
-    return new Date(user.subscriptionExpiresAt) < new Date();
+    if (!user?.subscription_expires_at) return false;
+    return new Date(user.subscription_expires_at) < new Date();
   };
 
   // Context value
@@ -291,8 +271,6 @@ export const AuthProvider = ({ children }) => {
     changePassword,
     forgotPassword,
     resetPassword,
-    verifyEmail,
-    refreshToken,
     
     // Utility methods
     isPremiumUser,
@@ -302,6 +280,7 @@ export const AuthProvider = ({ children }) => {
     getUserFullName,
     getUserInitials,
     isSubscriptionExpired,
+    showNotification,
   };
 
   return (
