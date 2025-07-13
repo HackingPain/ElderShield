@@ -1,324 +1,301 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from './contexts/AuthContext';
-import { SocketProvider } from './contexts/SocketContext';
 
-// Layout Components
-import Navbar from './components/Layout/Navbar';
-import Sidebar from './components/Layout/Sidebar';
-import Footer from './components/Layout/Footer';
-import LoadingSpinner from './components/UI/LoadingSpinner';
-import EmergencyButton from './components/Emergency/EmergencyButton';
-
-// Authentication Pages
-import Login from './pages/Auth/Login';
-import Register from './pages/Auth/Register';
-import ForgotPassword from './pages/Auth/ForgotPassword';
-import ResetPassword from './pages/Auth/ResetPassword';
-
-// Main Application Pages
-import Dashboard from './pages/Dashboard/Dashboard';
-import DailyCheckIn from './pages/CheckIn/DailyCheckIn';
-import Medications from './pages/Medications/Medications';
-import Messages from './pages/Messages/Messages';
-import Family from './pages/Family/Family';
-import Profile from './pages/Profile/Profile';
-import Settings from './pages/Settings/Settings';
-import Vitals from './pages/Vitals/Vitals';
-import Calendar from './pages/Calendar/Calendar';
-import Journal from './pages/Journal/Journal';
-import Emergency from './pages/Emergency/Emergency';
-
-// Premium Features
-import WellnessScore from './pages/Premium/WellnessScore';
-import VideoCall from './pages/Premium/VideoCall';
-import CareTeam from './pages/Premium/CareTeam';
-
-// Error Pages
-import NotFound from './pages/Error/NotFound';
-import Unauthorized from './pages/Error/Unauthorized';
-
-// Import CSS
-import './index.css';
-
-// Protected Route Component
-const ProtectedRoute = ({ children, requiredRole = null, requiresPremium = false }) => {
-  const { user, loading } = useAuth();
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <LoadingSpinner size="large" />
-      </div>
-    );
-  }
-
-  if (!user) {
-    return <Navigate to="/login" replace />;
-  }
-
-  if (requiredRole && user.role !== requiredRole) {
-    return <Navigate to="/unauthorized" replace />;
-  }
-
-  if (requiresPremium && user.subscriptionTier !== 'premium') {
-    return <Navigate to="/upgrade" replace />;
-  }
-
-  return children;
-};
-
-// Main App Layout Component
-const AppLayout = ({ children }) => {
-  const { user } = useAuth();
-  const [sidebarOpen, setSidebarOpen] = React.useState(false);
-
+// Simple dashboard for testing
+function Dashboard() {
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Navigation */}
-      <Navbar onMenuClick={() => setSidebarOpen(true)} />
+    <div style={{ padding: '20px', maxWidth: '1200px', margin: '0 auto' }}>
+      <h1 style={{ color: '#2563eb', marginBottom: '30px' }}>🛡️ SeniorCare Hub Dashboard</h1>
       
-      {/* Sidebar */}
-      <Sidebar 
-        open={sidebarOpen} 
-        onClose={() => setSidebarOpen(false)} 
-      />
-      
-      {/* Main Content */}
-      <main className="lg:pl-64 pt-16">
-        <div className="min-h-screen">
-          {children}
+      {/* Hero Section */}
+      <div style={{ 
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        color: 'white',
+        padding: '40px',
+        borderRadius: '12px',
+        marginBottom: '30px',
+        textAlign: 'center'
+      }}>
+        <h2 style={{ margin: '0 0 15px 0', fontSize: '2rem' }}>Welcome to Your Family Care Hub</h2>
+        <p style={{ margin: '0', fontSize: '1.2rem', opacity: 0.9 }}>
+          Secure, user-friendly platform to help families monitor, manage, and support aging loved ones
+        </p>
+      </div>
+
+      {/* Feature Grid */}
+      <div style={{ 
+        display: 'grid', 
+        gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
+        gap: '20px',
+        marginBottom: '30px'
+      }}>
+        
+        {/* Daily Check-ins Card */}
+        <div style={{ 
+          background: 'white', 
+          border: '1px solid #e5e7eb', 
+          borderRadius: '12px', 
+          padding: '25px',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '15px' }}>
+            <span style={{ fontSize: '2rem', marginRight: '15px' }}>📝</span>
+            <h3 style={{ margin: 0, color: '#1f2937' }}>Daily Check-ins</h3>
+          </div>
+          <p style={{ color: '#6b7280', marginBottom: '20px' }}>
+            One-tap responses for mood, meals, medications, hydration, and mobility
+          </p>
+          <button style={{
+            backgroundColor: '#3b82f6',
+            color: 'white',
+            border: 'none',
+            padding: '12px 24px',
+            borderRadius: '8px',
+            fontSize: '1rem',
+            fontWeight: '500',
+            cursor: 'pointer',
+            width: '100%'
+          }}>
+            Complete Today's Check-in
+          </button>
         </div>
-      </main>
-      
-      {/* Emergency Button - Always visible for seniors */}
-      {user && user.role === 'senior' && (
-        <EmergencyButton />
-      )}
-      
+
+        {/* Medication Reminders Card */}
+        <div style={{ 
+          background: 'white', 
+          border: '1px solid #e5e7eb', 
+          borderRadius: '12px', 
+          padding: '25px',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '15px' }}>
+            <span style={{ fontSize: '2rem', marginRight: '15px' }}>💊</span>
+            <h3 style={{ margin: 0, color: '#1f2937' }}>Medications</h3>
+          </div>
+          <p style={{ color: '#6b7280', marginBottom: '20px' }}>
+            Smart reminders with photo confirmation and prescription tracking
+          </p>
+          <button style={{
+            backgroundColor: '#059669',
+            color: 'white',
+            border: 'none',
+            padding: '12px 24px',
+            borderRadius: '8px',
+            fontSize: '1rem',
+            fontWeight: '500',
+            cursor: 'pointer',
+            width: '100%'
+          }}>
+            View Medications
+          </button>
+        </div>
+
+        {/* Family Messages Card */}
+        <div style={{ 
+          background: 'white', 
+          border: '1px solid #e5e7eb', 
+          borderRadius: '12px', 
+          padding: '25px',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '15px' }}>
+            <span style={{ fontSize: '2rem', marginRight: '15px' }}>💬</span>
+            <h3 style={{ margin: 0, color: '#1f2937' }}>Family Messages</h3>
+          </div>
+          <p style={{ color: '#6b7280', marginBottom: '20px' }}>
+            Secure HIPAA-compliant messaging with voice-to-text support
+          </p>
+          <button style={{
+            backgroundColor: '#7c3aed',
+            color: 'white',
+            border: 'none',
+            padding: '12px 24px',
+            borderRadius: '8px',
+            fontSize: '1rem',
+            fontWeight: '500',
+            cursor: 'pointer',
+            width: '100%'
+          }}>
+            View Messages
+          </button>
+        </div>
+
+        {/* Emergency Button Card */}
+        <div style={{ 
+          background: 'white', 
+          border: '1px solid #e5e7eb', 
+          borderRadius: '12px', 
+          padding: '25px',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '15px' }}>
+            <span style={{ fontSize: '2rem', marginRight: '15px' }}>🚨</span>
+            <h3 style={{ margin: 0, color: '#1f2937' }}>Emergency Alert</h3>
+          </div>
+          <p style={{ color: '#6b7280', marginBottom: '20px' }}>
+            One-button emergency contact activation with location sharing
+          </p>
+          <button style={{
+            backgroundColor: '#dc2626',
+            color: 'white',
+            border: 'none',
+            padding: '12px 24px',
+            borderRadius: '8px',
+            fontSize: '1rem',
+            fontWeight: '600',
+            cursor: 'pointer',
+            width: '100%'
+          }}>
+            Emergency Contact
+          </button>
+        </div>
+
+        {/* Wellness Score Card (Premium) */}
+        <div style={{ 
+          background: 'white', 
+          border: '1px solid #e5e7eb', 
+          borderRadius: '12px', 
+          padding: '25px',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+          position: 'relative'
+        }}>
+          <div style={{
+            position: 'absolute',
+            top: '10px',
+            right: '10px',
+            background: '#fbbf24',
+            color: '#92400e',
+            padding: '4px 8px',
+            borderRadius: '12px',
+            fontSize: '0.75rem',
+            fontWeight: '600'
+          }}>
+            PREMIUM
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '15px' }}>
+            <span style={{ fontSize: '2rem', marginRight: '15px' }}>📊</span>
+            <h3 style={{ margin: 0, color: '#1f2937' }}>AI Wellness Score</h3>
+          </div>
+          <p style={{ color: '#6b7280', marginBottom: '20px' }}>
+            AI-powered anomaly detection with wellness trends and insights
+          </p>
+          <button style={{
+            backgroundColor: '#f59e0b',
+            color: 'white',
+            border: 'none',
+            padding: '12px 24px',
+            borderRadius: '8px',
+            fontSize: '1rem',
+            fontWeight: '500',
+            cursor: 'pointer',
+            width: '100%'
+          }}>
+            View Wellness Score
+          </button>
+        </div>
+
+        {/* Video Calls Card (Premium) */}
+        <div style={{ 
+          background: 'white', 
+          border: '1px solid #e5e7eb', 
+          borderRadius: '12px', 
+          padding: '25px',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+          position: 'relative'
+        }}>
+          <div style={{
+            position: 'absolute',
+            top: '10px',
+            right: '10px',
+            background: '#fbbf24',
+            color: '#92400e',
+            padding: '4px 8px',
+            borderRadius: '12px',
+            fontSize: '0.75rem',
+            fontWeight: '600'
+          }}>
+            PREMIUM
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '15px' }}>
+            <span style={{ fontSize: '2rem', marginRight: '15px' }}>📹</span>
+            <h3 style={{ margin: 0, color: '#1f2937' }}>Video Calls</h3>
+          </div>
+          <p style={{ color: '#6b7280', marginBottom: '20px' }}>
+            One-tap family calls with large-button UI and captions
+          </p>
+          <button style={{
+            backgroundColor: '#8b5cf6',
+            color: 'white',
+            border: 'none',
+            padding: '12px 24px',
+            borderRadius: '8px',
+            fontSize: '1rem',
+            fontWeight: '500',
+            cursor: 'pointer',
+            width: '100%'
+          }}>
+            Start Video Call
+          </button>
+        </div>
+      </div>
+
+      {/* Stats Overview */}
+      <div style={{ 
+        background: 'white',
+        border: '1px solid #e5e7eb',
+        borderRadius: '12px',
+        padding: '25px',
+        marginBottom: '30px',
+        boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+      }}>
+        <h3 style={{ margin: '0 0 20px 0', color: '#1f2937' }}>📈 Your Health Overview</h3>
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', 
+          gap: '20px' 
+        }}>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: '2rem', fontWeight: '600', color: '#059669' }}>7</div>
+            <div style={{ fontSize: '0.9rem', color: '#6b7280' }}>Day Check-in Streak</div>
+          </div>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: '2rem', fontWeight: '600', color: '#3b82f6' }}>95%</div>
+            <div style={{ fontSize: '0.9rem', color: '#6b7280' }}>Medication Adherence</div>
+          </div>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: '2rem', fontWeight: '600', color: '#8b5cf6' }}>3</div>
+            <div style={{ fontSize: '0.9rem', color: '#6b7280' }}>Family Members</div>
+          </div>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: '2rem', fontWeight: '600', color: '#f59e0b' }}>85</div>
+            <div style={{ fontSize: '0.9rem', color: '#6b7280' }}>Wellness Score</div>
+          </div>
+        </div>
+      </div>
+
       {/* Footer */}
-      <Footer />
-      
-      {/* Toast Notifications */}
-      <Toaster
-        position="top-right"
-        toastOptions={{
-          duration: 5000,
-          style: {
-            fontSize: '1.125rem',
-            padding: '16px 24px',
-            maxWidth: '500px',
-          },
-          success: {
-            style: {
-              background: '#f0fdf4',
-              color: '#16a34a',
-              border: '1px solid #4ade80',
-            },
-          },
-          error: {
-            style: {
-              background: '#fef2f2',
-              color: '#dc2626',
-              border: '1px solid #f87171',
-            },
-          },
-        }}
-      />
+      <div style={{ 
+        textAlign: 'center', 
+        padding: '20px', 
+        color: '#6b7280',
+        borderTop: '1px solid #e5e7eb'
+      }}>
+        <p style={{ margin: 0 }}>
+          Built with ❤️ for seniors and their families by DarkHorse Information Security
+        </p>
+        <p style={{ margin: '5px 0 0 0', fontSize: '0.9rem' }}>
+          HIPAA Compliant • SOC2 Type II • ADA Accessible
+        </p>
+      </div>
     </div>
   );
-};
+}
 
 // Main App Component
 function App() {
   return (
-    <AuthProvider>
-      <SocketProvider>
-        <Router>
-          <div className="App">
-            <Routes>
-              {/* Public Routes */}
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/forgot-password" element={<ForgotPassword />} />
-              <Route path="/reset-password" element={<ResetPassword />} />
-              
-              {/* Protected Routes */}
-              <Route
-                path="/"
-                element={
-                  <ProtectedRoute>
-                    <AppLayout>
-                      <Dashboard />
-                    </AppLayout>
-                  </ProtectedRoute>
-                }
-              />
-              
-              <Route
-                path="/dashboard"
-                element={
-                  <ProtectedRoute>
-                    <AppLayout>
-                      <Dashboard />
-                    </AppLayout>
-                  </ProtectedRoute>
-                }
-              />
-              
-              <Route
-                path="/checkin"
-                element={
-                  <ProtectedRoute>
-                    <AppLayout>
-                      <DailyCheckIn />
-                    </AppLayout>
-                  </ProtectedRoute>
-                }
-              />
-              
-              <Route
-                path="/medications"
-                element={
-                  <ProtectedRoute>
-                    <AppLayout>
-                      <Medications />
-                    </AppLayout>
-                  </ProtectedRoute>
-                }
-              />
-              
-              <Route
-                path="/messages"
-                element={
-                  <ProtectedRoute>
-                    <AppLayout>
-                      <Messages />
-                    </AppLayout>
-                  </ProtectedRoute>
-                }
-              />
-              
-              <Route
-                path="/family"
-                element={
-                  <ProtectedRoute>
-                    <AppLayout>
-                      <Family />
-                    </AppLayout>
-                  </ProtectedRoute>
-                }
-              />
-              
-              <Route
-                path="/profile"
-                element={
-                  <ProtectedRoute>
-                    <AppLayout>
-                      <Profile />
-                    </AppLayout>
-                  </ProtectedRoute>
-                }
-              />
-              
-              <Route
-                path="/settings"
-                element={
-                  <ProtectedRoute>
-                    <AppLayout>
-                      <Settings />
-                    </AppLayout>
-                  </ProtectedRoute>
-                }
-              />
-              
-              <Route
-                path="/vitals"
-                element={
-                  <ProtectedRoute>
-                    <AppLayout>
-                      <Vitals />
-                    </AppLayout>
-                  </ProtectedRoute>
-                }
-              />
-              
-              <Route
-                path="/calendar"
-                element={
-                  <ProtectedRoute>
-                    <AppLayout>
-                      <Calendar />
-                    </AppLayout>
-                  </ProtectedRoute>
-                }
-              />
-              
-              <Route
-                path="/journal"
-                element={
-                  <ProtectedRoute>
-                    <AppLayout>
-                      <Journal />
-                    </AppLayout>
-                  </ProtectedRoute>
-                }
-              />
-              
-              <Route
-                path="/emergency"
-                element={
-                  <ProtectedRoute>
-                    <AppLayout>
-                      <Emergency />
-                    </AppLayout>
-                  </ProtectedRoute>
-                }
-              />
-              
-              {/* Premium Features */}
-              <Route
-                path="/wellness"
-                element={
-                  <ProtectedRoute requiresPremium={true}>
-                    <AppLayout>
-                      <WellnessScore />
-                    </AppLayout>
-                  </ProtectedRoute>
-                }
-              />
-              
-              <Route
-                path="/video-call"
-                element={
-                  <ProtectedRoute requiresPremium={true}>
-                    <AppLayout>
-                      <VideoCall />
-                    </AppLayout>
-                  </ProtectedRoute>
-                }
-              />
-              
-              <Route
-                path="/care-team"
-                element={
-                  <ProtectedRoute requiresPremium={true}>
-                    <AppLayout>
-                      <CareTeam />
-                    </AppLayout>
-                  </ProtectedRoute>
-                }
-              />
-              
-              {/* Error Routes */}
-              <Route path="/unauthorized" element={<Unauthorized />} />
-              <Route path="/404" element={<NotFound />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </div>
-        </Router>
-      </SocketProvider>
-    </AuthProvider>
+    <div className="App">
+      <Dashboard />
+    </div>
   );
 }
 
