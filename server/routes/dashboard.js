@@ -1,9 +1,8 @@
 const express = require('express');
-const { pool } = require('../config/database');
+const { getDB } = require('../config/database');
 const { authenticate } = require('../middleware/auth');
 const { asyncHandler } = require('../middleware/errorHandler');
-const { cacheHelpers } = require('../config/redis');
-const logger = require('../utils/logger');
+const { logger } = require('../utils/logger');
 
 const router = express.Router();
 
