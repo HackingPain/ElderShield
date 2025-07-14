@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { SocketProvider } from './contexts/SocketContext';
+import { useDevicePlatform } from './services/DevicePlatformService';
 
 // Authentication Pages
 import Login from './pages/Auth/Login';
@@ -12,6 +13,11 @@ import Dashboard from './pages/Dashboard/Dashboard';
 
 // Core Pages
 import DailyCheckIn from './pages/CheckIn/DailyCheckIn';
+
+// PWA Components
+import PWAInstallPrompt from './components/PWAInstallPrompt';
+import OfflineIndicator from './components/OfflineIndicator';
+import EmergencyFloatingButton from './components/EmergencyFloatingButton';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
