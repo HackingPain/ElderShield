@@ -215,9 +215,6 @@ router.post('/', authenticate, asyncHandler(async (req, res) => {
     checkIn
   });
 }));
-      checkIn: checkIn,
-      isUpdate: existingCheckIn.rows.length > 0
-    });
 
   } catch (error) {
     await client.query('ROLLBACK');
