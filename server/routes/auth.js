@@ -84,7 +84,7 @@ router.post('/register', asyncHandler(async (req, res) => {
   await db.collection('users').insertOne(userDoc);
 
   // Generate token
-  const token = generateToken({
+  const token = generateTokenLocal({
     userId,
     email,
     role: role || 'senior'
