@@ -357,13 +357,14 @@ router.get('/summary', authenticate, asyncHandler(async (req, res) => {
 router.delete('/:id', authenticate, asyncHandler(async (req, res) => {
   const { id } = req.params;
   const userId = req.user.id;
+  const db = getDB();
 
-  const result = await pool.query(
-    'DELETE FROM vitals_readings WHERE id = $1 AND user_id = $2 RETURNING *',
-    [id, userId]
-  );
+  const result = await db.collection('vitals').deleteOne({
+    id: id,
+    user_id: userId
+  });
 
-  if (result.rows.length === 0) {
+  if (result.deletedCount === 0) {
     return res.status(404).json({ error: 'Vital reading not found' });
   }
 
