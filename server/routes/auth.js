@@ -34,48 +34,11 @@ const loginSchema = Joi.object({
 });
 
 // Helper function to generate JWT token
-const generateToken = (payload) => {
+const generateTokenLocal = (payload) => {
   return jwt.sign(payload, process.env.JWT_SECRET || 'default-secret', {
     expiresIn: process.env.JWT_EXPIRES_IN || '24h'
   });
 };
-
-// Helper function to verify JWT token
-const verifyToken = (token) => {
-  return jwt.verify(token, process.env.JWT_SECRET || 'default-secret');
-};
-
-// Authentication middleware
-const authenticate = asyncHandler(async (req, res, next) => {
-  const authHeader = req.headers.authorization;
-  const token = authHeader && authHeader.startsWith('Bearer ') ? authHeader.substring(7) : null;
-  
-  if (!token) {
-    throw new AuthenticationError('No token provided');
-  }
-  
-  try {
-    const decoded = verifyToken(token);
-    const db = getDB();
-    
-    const user = await db.collection('users').findOne(
-      { id: decoded.userId, is_active: true },
-      { projection: { password_hash: 0 } }
-    );
-    
-    if (!user) {
-      throw new AuthenticationError('User not found');
-    }
-    
-    req.user = user;
-    next();
-  } catch (error) {
-    if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
-      throw new AuthenticationError('Invalid token');
-    }
-    throw error;
-  }
-});
 
 // Register new user
 router.post('/register', asyncHandler(async (req, res) => {
