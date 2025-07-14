@@ -56,7 +56,7 @@ class SeniorCareLauncherActivity : AppCompatActivity() {
         const val PREF_EMERGENCY_CONTACTS = "emergency_contacts"
         const val PREF_CAREGIVER_PIN = "caregiver_pin"
         
-        const val DEFAULT_SERVER_URL = "https://seniorcarehub.com"
+        const val DEFAULT_SERVER_URL = "http://localhost:3000"
         const val TABLET_USER_AGENT = "SeniorCareHub-Tablet/1.0"
     }
     
