@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const Joi = require('joi');
 const { v4: uuidv4 } = require('uuid');
 const { getDB } = require('../config/database');
+const { authenticate } = require('../middleware/auth');
 const { asyncHandler, ValidationError, AuthenticationError, ConflictError } = require('../middleware/errorHandler');
 const { logger } = require('../utils/logger');
 
