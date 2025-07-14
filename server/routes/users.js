@@ -32,32 +32,82 @@ router.get('/family-connections', authenticate, asyncHandler(async (req, res) =>
   const userId = req.user.id;
   const userRole = req.user.role;
 
-  let query, params;
+  const db = getDB();
+  let familyConnections = [];
 
   if (userRole === 'senior') {
     // Get all caregivers connected to this senior
-    query = `
-      SELECT 
-        fc.id, fc.relationship, fc.permissions, fc.status, fc.created_at,
-        u.id as user_id, u.first_name, u.last_name, u.email, u.phone,
-        u.profile_picture_url, u.role, 'caregiver' as connection_type
-      FROM family_connections fc
-      JOIN users u ON fc.caregiver_id = u.id
-      WHERE fc.senior_id = $1
-      ORDER BY fc.created_at DESC
-    `;
-    params = [userId];
+    const connections = await db.collection('family_connections').find({
+      senior_id: userId
+    }).toArray();
+
+    // Get caregiver details for each connection
+    for (const connection of connections) {
+      const caregiver = await db.collection('users').findOne(
+        { id: connection.caregiver_id },
+        { projection: { password_hash: 0 } }
+      );
+      
+      if (caregiver) {
+        familyConnections.push({
+          id: connection.id,
+          relationship: connection.relationship,
+          permissions: connection.permissions,
+          status: connection.status,
+          created_at: connection.created_at,
+          user_id: caregiver.id,
+          first_name: caregiver.first_name,
+          last_name: caregiver.last_name,
+          email: caregiver.email,
+          phone: caregiver.phone,
+          profile_picture_url: caregiver.profile_picture_url,
+          role: caregiver.role,
+          connection_type: 'caregiver'
+        });
+      }
+    }
   } else if (userRole === 'caregiver') {
     // Get all seniors this caregiver is connected to
-    query = `
-      SELECT 
-        fc.id, fc.relationship, fc.permissions, fc.status, fc.created_at,
-        u.id as user_id, u.first_name, u.last_name, u.email, u.phone,
-        u.profile_picture_url, u.role, 'senior' as connection_type
-      FROM family_connections fc
-      JOIN users u ON fc.senior_id = u.id
-      WHERE fc.caregiver_id = $1
-      ORDER BY fc.created_at DESC
+    const connections = await db.collection('family_connections').find({
+      caregiver_id: userId
+    }).toArray();
+
+    // Get senior details for each connection
+    for (const connection of connections) {
+      const senior = await db.collection('users').findOne(
+        { id: connection.senior_id },
+        { projection: { password_hash: 0 } }
+      );
+      
+      if (senior) {
+        familyConnections.push({
+          id: connection.id,
+          relationship: connection.relationship,
+          permissions: connection.permissions,
+          status: connection.status,
+          created_at: connection.created_at,
+          user_id: senior.id,
+          first_name: senior.first_name,
+          last_name: senior.last_name,
+          email: senior.email,
+          phone: senior.phone,
+          profile_picture_url: senior.profile_picture_url,
+          role: senior.role,
+          connection_type: 'senior'
+        });
+      }
+    }
+  } else {
+    // Admin users can see all connections (simplified)
+    const allConnections = await db.collection('family_connections').find({}).limit(50).toArray();
+    familyConnections = allConnections;
+  }
+
+  res.json({
+    familyConnections,
+    count: familyConnections.length
+  });
+}));
     `;
     params = [userId];
   } else {
