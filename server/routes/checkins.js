@@ -215,9 +215,6 @@ router.post('/', authenticate, asyncHandler(async (req, res) => {
     checkIn
   });
 }));
-        // This would integrate with your notification system
-        logger.info(`Sending wellness concern notification to caregiver ${caregiver.id}`);
-      }
     }
 
     logger.info(`Daily check-in ${existingCheckIn.rows.length > 0 ? 'updated' : 'created'} for user ${userId}`);
