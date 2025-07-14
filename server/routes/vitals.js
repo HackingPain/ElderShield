@@ -219,54 +219,6 @@ router.get('/', authenticate, asyncHandler(async (req, res) => {
     }
   });
 }));
-    paramCount++;
-    whereClause += ` AND reading_time <= $${paramCount}`;
-    params.push(end_date);
-  }
-
-  if (abnormal_only === 'true') {
-    whereClause += ' AND is_abnormal = true';
-  }
-
-  const result = await pool.query(
-    `SELECT 
-      id, user_id, reading_type, value, unit, device_id, device_name,
-      reading_time, is_abnormal, notes, created_at
-     FROM vitals_readings 
-     ${whereClause}
-     ORDER BY reading_time DESC
-     LIMIT $${paramCount + 1} OFFSET $${paramCount + 2}`,
-    [...params, limit, offset]
-  );
-
-  // Get total count
-  const countResult = await pool.query(
-    `SELECT COUNT(*) as total FROM vitals_readings ${whereClause}`,
-    params
-  );
-
-  res.json({
-    readings: result.rows.map(row => ({
-      id: row.id,
-      readingType: row.reading_type,
-      value: JSON.parse(row.value),
-      unit: row.unit,
-      deviceId: row.device_id,
-      deviceName: row.device_name,
-      readingTime: row.reading_time,
-      isAbnormal: row.is_abnormal,
-      notes: row.notes,
-      createdAt: row.created_at
-    })),
-    pagination: {
-      page: parseInt(page),
-      limit: parseInt(limit),
-      total: parseInt(countResult.rows[0].total),
-      totalPages: Math.ceil(countResult.rows[0].total / limit)
-    }
-  });
-}));
-
 /**
  * @route GET /api/vitals/latest
  * @desc Get latest readings for each vital type
@@ -274,28 +226,33 @@ router.get('/', authenticate, asyncHandler(async (req, res) => {
  */
 router.get('/latest', authenticate, asyncHandler(async (req, res) => {
   const userId = req.user.id;
+  const db = getDB();
 
-  const result = await pool.query(
-    `SELECT DISTINCT ON (reading_type)
-      id, reading_type, value, unit, device_name, reading_time, is_abnormal, notes
-     FROM vitals_readings
-     WHERE user_id = $1
-     ORDER BY reading_type, reading_time DESC`,
-    [userId]
-  );
-
+  // Get latest reading for each vital type
   const latestReadings = {};
-  result.rows.forEach(row => {
-    latestReadings[row.reading_type] = {
-      id: row.id,
-      value: JSON.parse(row.value),
-      unit: row.unit,
-      deviceName: row.device_name,
-      readingTime: row.reading_time,
-      isAbnormal: row.is_abnormal,
-      notes: row.notes
-    };
-  });
+  
+  const vitalTypes = ['blood_pressure', 'heart_rate', 'blood_glucose', 'weight', 
+                     'oxygen_saturation', 'temperature', 'respiratory_rate'];
+
+  for (const type of vitalTypes) {
+    const latest = await db.collection('vitals')
+      .findOne(
+        { user_id: userId, reading_type: type },
+        { sort: { reading_time: -1 } }
+      );
+
+    if (latest) {
+      latestReadings[type] = {
+        id: latest.id,
+        value: latest.value,
+        unit: latest.unit,
+        deviceName: latest.device_name,
+        readingTime: latest.reading_time,
+        isAbnormal: latest.is_abnormal,
+        notes: latest.notes
+      };
+    }
+  }
 
   res.json({
     latestReadings
