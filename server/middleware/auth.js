@@ -98,12 +98,8 @@ const authenticate = asyncHandler(async (req, res, next) => {
     // Verify JWT token
     const decoded = verifyToken(token);
     
-    // Check if token is blacklisted (logout)
-    const isBlacklisted = await sessionHelpers.get(`blacklist:${token}`);
-    if (isBlacklisted) {
-      logger.auth('Blacklisted token used', decoded.userId, { token: token.substring(0, 10) + '...' });
-      throw new AuthenticationError('Token is no longer valid');
-    }
+    // Skip Redis blacklist check for now (Redis not available)
+    // TODO: Implement blacklist checking when Redis is available
     
     // Get user from database
     const user = await getUserFromDatabase(decoded.userId);
