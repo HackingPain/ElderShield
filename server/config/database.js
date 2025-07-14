@@ -1,5 +1,5 @@
 const { MongoClient } = require('mongodb');
-const logger = require('../utils/logger');
+const { logger } = require('../utils/logger');
 
 let db = null;
 let client = null;
