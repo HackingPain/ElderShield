@@ -15,7 +15,6 @@ router.get('/', authenticate, asyncHandler(async (req, res) => {
   const userId = req.user.id;
   const userRole = req.user.role;
 
-  // Skip caching for now (Redis not available)
   let dashboardData;
 
   if (userRole === 'senior') {
