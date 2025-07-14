@@ -30,34 +30,42 @@ const checkInSchema = Joi.object({
  */
 router.get('/', authenticate, asyncHandler(async (req, res) => {
   const { page = 1, limit = 30, start_date, end_date } = req.query;
-  const offset = (page - 1) * limit;
+  const skip = (page - 1) * limit;
   const userId = req.user.id;
-
-  let whereClause = 'WHERE user_id = $1';
-  let params = [userId];
-  let paramCount = 1;
-
-  // Add date filters if provided
-  if (start_date) {
-    paramCount++;
-    whereClause += ` AND date >= $${paramCount}`;
-    params.push(start_date);
+  
+  const db = getDB();
+  
+  // Build query filter
+  const filter = { user_id: userId };
+  
+  if (start_date || end_date) {
+    filter.check_date = {};
+    if (start_date) filter.check_date.$gte = start_date;
+    if (end_date) filter.check_date.$lte = end_date;
   }
 
-  if (end_date) {
-    paramCount++;
-    whereClause += ` AND date <= $${paramCount}`;
-    params.push(end_date);
-  }
+  // Get check-ins with pagination
+  const checkIns = await db.collection('daily_checkins')
+    .find(filter)
+    .sort({ check_date: -1 })
+    .skip(skip)
+    .limit(parseInt(limit))
+    .toArray();
 
-  // Add pagination
-  paramCount++;
-  whereClause += ` ORDER BY date DESC LIMIT $${paramCount}`;
-  params.push(limit);
+  // Get total count for pagination
+  const total = await db.collection('daily_checkins').countDocuments(filter);
 
-  paramCount++;
-  whereClause += ` OFFSET $${paramCount}`;
-  params.push(offset);
+  res.json({
+    checkIns,
+    pagination: {
+      currentPage: parseInt(page),
+      totalPages: Math.ceil(total / limit),
+      totalCount: total,
+      hasNextPage: page * limit < total,
+      hasPrevPage: page > 1
+    }
+  });
+}));
 
   const query = `
     SELECT 
