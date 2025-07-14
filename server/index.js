@@ -7,8 +7,8 @@ const { createServer } = require('http');
 const { Server } = require('socket.io');
 require('dotenv').config();
 
-const logger = require('./utils/logger');
-const errorHandler = require('./middleware/errorHandler');
+const { logger } = require('./utils/logger');
+const { errorHandler } = require('./middleware/errorHandler');
 const { connectDB } = require('./config/database');
 const { initializeRedis } = require('./config/redis');
 const { initializeFirebase } = require('./config/firebase');
