@@ -56,13 +56,11 @@ router.post('/register', asyncHandler(async (req, res) => {
 
   const { email, password, firstName, lastName, role, phone, dateOfBirth, emergencyContacts } = value;
 
+  const db = getDB();
+  
   // Check if user already exists
-  const existingUser = await pool.query(
-    'SELECT id FROM users WHERE email = $1',
-    [email]
-  );
-
-  if (existingUser.rows.length > 0) {
+  const existingUser = await db.collection('users').findOne({ email });
+  if (existingUser) {
     throw new ConflictError('User with this email already exists');
   }
 
@@ -70,9 +68,53 @@ router.post('/register', asyncHandler(async (req, res) => {
   const saltRounds = 12;
   const passwordHash = await bcrypt.hash(password, saltRounds);
 
-  // Create user
-  const client = await pool.connect();
-  try {
+  // Create user document
+  const userId = uuidv4();
+  const userDoc = {
+    id: userId,
+    email,
+    password_hash: passwordHash,
+    role: role || 'senior',
+    first_name: firstName,
+    last_name: lastName,
+    phone: phone || null,
+    date_of_birth: dateOfBirth ? new Date(dateOfBirth) : null,
+    profile_picture_url: null,
+    subscription_tier: 'free',
+    subscription_expires_at: null,
+    emergency_contacts: emergencyContacts || [],
+    preferences: {},
+    is_active: true,
+    email_verified: false,
+    created_at: new Date(),
+    updated_at: new Date()
+  };
+
+  // Insert user into database
+  await db.collection('users').insertOne(userDoc);
+
+  // Generate JWT token
+  const tokenPayload = {
+    userId: userId,
+    email: email,
+    role: role || 'senior'
+  };
+  
+  const token = jwt.sign(tokenPayload, process.env.JWT_SECRET || 'default-secret', {
+    expiresIn: process.env.JWT_EXPIRES_IN || '24h'
+  });
+
+  // Remove password hash from response
+  delete userDoc.password_hash;
+
+  logger.auth('User registered successfully', userId, { email, role });
+
+  res.status(201).json({
+    message: 'User registered successfully',
+    user: userDoc,
+    token
+  });
+}));
     await client.query('BEGIN');
 
     const userResult = await client.query(`
