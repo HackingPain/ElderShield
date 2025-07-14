@@ -215,8 +215,6 @@ router.post('/', authenticate, asyncHandler(async (req, res) => {
     checkIn
   });
 }));
-  }
-}));
 
 /**
  * @route GET /api/checkins/streak
