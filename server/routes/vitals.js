@@ -268,23 +268,25 @@ router.get('/trends/:reading_type', authenticate, asyncHandler(async (req, res) 
   const userId = req.user.id;
   const { reading_type } = req.params;
   const { days = 30 } = req.query;
+  const db = getDB();
 
-  const result = await pool.query(
-    `SELECT 
-      value, unit, reading_time, is_abnormal
-     FROM vitals_readings
-     WHERE user_id = $1 
-     AND reading_type = $2
-     AND reading_time >= CURRENT_DATE - INTERVAL '${days} days'
-     ORDER BY reading_time ASC`,
-    [userId, reading_type]
-  );
+  const startDate = new Date();
+  startDate.setDate(startDate.getDate() - parseInt(days));
 
-  const trendData = result.rows.map(row => ({
-    value: JSON.parse(row.value),
-    unit: row.unit,
-    timestamp: row.reading_time,
-    isAbnormal: row.is_abnormal
+  const readings = await db.collection('vitals')
+    .find({
+      user_id: userId,
+      reading_type: reading_type,
+      reading_time: { $gte: startDate }
+    })
+    .sort({ reading_time: 1 })
+    .toArray();
+
+  const trendData = readings.map(reading => ({
+    value: reading.value,
+    unit: reading.unit,
+    timestamp: reading.reading_time,
+    isAbnormal: reading.is_abnormal
   }));
 
   // Calculate statistics
