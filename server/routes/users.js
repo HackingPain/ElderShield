@@ -10,8 +10,8 @@ const router = express.Router();
 
 // Validation schemas
 const familyConnectionSchema = Joi.object({
-  senior_email: Joi.string().email().when('caregiver_email', { is: Joi.exist(), then: Joi.forbidden(), otherwise: Joi.required() }),
-  caregiver_email: Joi.string().email().when('senior_email', { is: Joi.exist(), then: Joi.forbidden(), otherwise: Joi.required() }),
+  senior_email: Joi.string().email(),
+  caregiver_email: Joi.string().email(),
   relationship: Joi.string().min(2).max(50).required(),
   permissions: Joi.object({
     viewCheckIns: Joi.boolean().default(true),
