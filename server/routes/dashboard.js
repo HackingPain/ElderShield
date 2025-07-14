@@ -138,41 +138,48 @@ async function getSeniorDashboard(userId) {
     const db = getDB();
     const today = new Date().toISOString().split('T')[0];
 
-    // Get today's check-in status (simplified)
+    // Get today's check-in status
     const todayCheckIn = await db.collection('daily_checkins').findOne({
       user_id: userId,
       check_date: today
     });
 
-    // Get recent medications (simplified)
+    // Get recent medications
     const medications = await db.collection('medications').find({
       user_id: userId,
       is_active: true
     }).limit(5).toArray();
 
-    // Get unread messages count (simplified)
+    // Get unread messages count
     const unreadMessagesCount = await db.collection('messages').countDocuments({
       recipient_id: userId,
       is_read: false
     });
 
-    // Create basic dashboard data
+    // Get recent check-ins for trend
+    const recentCheckIns = await db.collection('daily_checkins').find({
+      user_id: userId
+    }).sort({ check_date: -1 }).limit(7).toArray();
+
     return {
+      user: { id: userId, role: 'senior' },
       checkInStatus: {
         completedToday: !!todayCheckIn,
-        lastCheckIn: todayCheckIn || null
+        lastCheckIn: todayCheckIn,
+        streak: recentCheckIns.length
       },
       medications: {
         totalActive: medications.length,
-        upcomingReminders: medications.slice(0, 3) // Show first 3 as upcoming
+        upcomingReminders: medications.slice(0, 3)
       },
       messages: {
         unreadCount: unreadMessagesCount
       },
       wellness: {
         overallScore: todayCheckIn?.mood_rating || null,
-        trend: 'stable' // Simplified
+        trend: recentCheckIns.length > 0 ? 'improving' : 'stable'
       },
+      recentActivity: recentCheckIns.slice(0, 3),
       alerts: []
     };
   } catch (error) {
