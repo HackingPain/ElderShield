@@ -177,13 +177,30 @@ class BackendTester:
             self.log_warning("Skipping login test - no registered user")
             return False
             
-        # Use the same email from registration
-        timestamp = int(time.time())
-        test_email = f"senior.test.{timestamp}@example.com"
+        # Create a new user for login test to avoid timing issues
+        timestamp = int(time.time()) + 1  # Add 1 to ensure different timestamp
+        test_email = f"login.test.{timestamp}@example.com"
         
+        # Register a user specifically for login test
+        registration_data = {
+            "email": test_email,
+            "password": "LoginTest123!",
+            "firstName": "Login",
+            "lastName": "Test",
+            "role": "senior",
+            "phone": "+1-555-0125",
+            "dateOfBirth": "1950-05-20"
+        }
+        
+        reg_response = self.make_request('POST', '/auth/register', registration_data)
+        if reg_response is None or reg_response.status_code != 201:
+            self.log_failure("Login test - Failed to create test user for login")
+            return False
+        
+        # Now test login with the newly created user
         login_data = {
             "email": test_email,
-            "password": "SecurePassword123!",
+            "password": "LoginTest123!",
             "rememberMe": False
         }
         
@@ -200,7 +217,7 @@ class BackendTester:
             try:
                 data = response.json()
                 if 'token' in data and 'user' in data:
-                    self.auth_token = data['token']
+                    self.auth_token = data['token']  # Use new token
                     self.log_success("User login - Success")
                     return True
                 else:
