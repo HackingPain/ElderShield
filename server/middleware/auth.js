@@ -52,34 +52,35 @@ const extractToken = (req) => {
 
 // Get user from database
 const getUserFromDatabase = async (userId) => {
-  const client = await pool.connect();
   try {
-    const result = await client.query(`
-      SELECT 
-        u.*,
-        COALESCE(
-          json_agg(
-            json_build_object(
-              'id', fc.id,
-              'senior_id', fc.senior_id,
-              'caregiver_id', fc.caregiver_id,
-              'relationship', fc.relationship,
-              'permissions', fc.permissions,
-              'is_primary', fc.is_primary,
-              'status', fc.status
-            )
-          ) FILTER (WHERE fc.id IS NOT NULL), 
-          '[]'
-        ) as family_connections
-      FROM users u
-      LEFT JOIN family_connections fc ON (u.id = fc.senior_id OR u.id = fc.caregiver_id)
-      WHERE u.id = $1 AND u.is_active = true
-      GROUP BY u.id
-    `, [userId]);
+    const db = getDB();
     
-    return result.rows[0] || null;
-  } finally {
-    client.release();
+    // Find user by ID
+    const user = await db.collection('users').findOne(
+      { id: userId, is_active: true },
+      { projection: { password_hash: 0 } } // Exclude password hash
+    );
+    
+    if (!user) {
+      return null;
+    }
+    
+    // Get family connections for this user
+    const familyConnections = await db.collection('family_connections').find({
+      $or: [
+        { senior_id: userId },
+        { caregiver_id: userId }
+      ],
+      status: 'active'
+    }).toArray();
+    
+    // Add family connections to user object
+    user.family_connections = familyConnections;
+    
+    return user;
+  } catch (error) {
+    logger.error('Error fetching user from database:', error);
+    return null;
   }
 };
 
