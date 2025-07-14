@@ -32,20 +32,6 @@ const loginSchema = Joi.object({
   rememberMe: Joi.boolean().default(false)
 });
 
-const forgotPasswordSchema = Joi.object({
-  email: Joi.string().email().required()
-});
-
-const resetPasswordSchema = Joi.object({
-  token: Joi.string().required(),
-  password: Joi.string().min(8).required()
-});
-
-const changePasswordSchema = Joi.object({
-  currentPassword: Joi.string().required(),
-  newPassword: Joi.string().min(8).required()
-});
-
 // Register new user
 router.post('/register', asyncHandler(async (req, res) => {
   // Validate request
