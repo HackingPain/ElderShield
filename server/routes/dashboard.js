@@ -236,10 +236,15 @@ async function getAdminDashboard(userId) {
     // Get basic stats
     const totalUsers = await db.collection('users').countDocuments({ is_active: true });
     const totalCheckIns = await db.collection('daily_checkins').countDocuments();
+    const totalMedications = await db.collection('medications').countDocuments({ is_active: true });
 
     return {
-      totalUsers,
-      totalCheckIns,
+      user: { id: userId, role: 'admin' },
+      systemStats: {
+        totalUsers,
+        totalCheckIns,
+        totalMedications
+      },
       systemHealth: 'operational',
       alerts: []
     };
