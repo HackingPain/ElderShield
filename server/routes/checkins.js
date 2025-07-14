@@ -215,9 +215,6 @@ router.post('/', authenticate, asyncHandler(async (req, res) => {
     checkIn
   });
 }));
-
-  } catch (error) {
-    await client.query('ROLLBACK');
     throw error;
   } finally {
     client.release();
