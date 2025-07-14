@@ -21,7 +21,7 @@ const medicationRoutes = require('./routes/medications');
 const messagingRoutes = require('./routes/messaging');
 const dashboardRoutes = require('./routes/dashboard');
 const emergencyRoutes = require('./routes/emergency');
-// const vitalsRoutes = require('./routes/vitals'); // Temporarily disabled due to syntax issues
+const vitalsRoutes = require('./routes/vitals');
 const premiumRoutes = require('./routes/premium');
 
 const app = express();
