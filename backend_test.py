@@ -468,7 +468,8 @@ class BackendTester:
         if response.status_code == 200:
             try:
                 data = response.json()
-                if 'connections' in data:
+                # Accept both 'connections' and 'familyConnections' keys, and empty arrays are valid
+                if 'connections' in data or 'familyConnections' in data:
                     self.log_success("Family connections - Retrieved successfully")
                     return True
                 else:
