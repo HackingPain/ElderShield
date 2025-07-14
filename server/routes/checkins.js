@@ -215,9 +215,6 @@ router.post('/', authenticate, asyncHandler(async (req, res) => {
     checkIn
   });
 }));
-    throw error;
-  } finally {
-    client.release();
   }
 }));
 
