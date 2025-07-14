@@ -32,16 +32,58 @@ const loginSchema = Joi.object({
   rememberMe: Joi.boolean().default(false)
 });
 
+// Helper function to generate JWT token
+const generateToken = (payload) => {
+  return jwt.sign(payload, process.env.JWT_SECRET || 'default-secret', {
+    expiresIn: process.env.JWT_EXPIRES_IN || '24h'
+  });
+};
+
+// Helper function to verify JWT token
+const verifyToken = (token) => {
+  return jwt.verify(token, process.env.JWT_SECRET || 'default-secret');
+};
+
+// Authentication middleware
+const authenticate = asyncHandler(async (req, res, next) => {
+  const authHeader = req.headers.authorization;
+  const token = authHeader && authHeader.startsWith('Bearer ') ? authHeader.substring(7) : null;
+  
+  if (!token) {
+    throw new AuthenticationError('No token provided');
+  }
+  
+  try {
+    const decoded = verifyToken(token);
+    const db = getDB();
+    
+    const user = await db.collection('users').findOne(
+      { id: decoded.userId, is_active: true },
+      { projection: { password_hash: 0 } }
+    );
+    
+    if (!user) {
+      throw new AuthenticationError('User not found');
+    }
+    
+    req.user = user;
+    next();
+  } catch (error) {
+    if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
+      throw new AuthenticationError('Invalid token');
+    }
+    throw error;
+  }
+});
+
 // Register new user
 router.post('/register', asyncHandler(async (req, res) => {
-  // Validate request
   const { error, value } = registerSchema.validate(req.body);
   if (error) {
     throw new ValidationError('Validation failed', error.details);
   }
 
   const { email, password, firstName, lastName, role, phone, dateOfBirth, emergencyContacts } = value;
-
   const db = getDB();
   
   // Check if user already exists
@@ -51,8 +93,7 @@ router.post('/register', asyncHandler(async (req, res) => {
   }
 
   // Hash password
-  const saltRounds = 12;
-  const passwordHash = await bcrypt.hash(password, saltRounds);
+  const passwordHash = await bcrypt.hash(password, 12);
 
   // Create user document
   const userId = uuidv4();
@@ -76,23 +117,16 @@ router.post('/register', asyncHandler(async (req, res) => {
     updated_at: new Date()
   };
 
-  // Insert user into database
   await db.collection('users').insertOne(userDoc);
 
-  // Generate JWT token
-  const tokenPayload = {
-    userId: userId,
-    email: email,
+  // Generate token
+  const token = generateToken({
+    userId,
+    email,
     role: role || 'senior'
-  };
-  
-  const token = jwt.sign(tokenPayload, process.env.JWT_SECRET || 'default-secret', {
-    expiresIn: process.env.JWT_EXPIRES_IN || '24h'
   });
 
-  // Remove password hash from response
   delete userDoc.password_hash;
-
   logger.auth('User registered successfully', userId, { email, role });
 
   res.status(201).json({
