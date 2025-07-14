@@ -201,17 +201,26 @@ async function getCaregiverDashboard(userId) {
 
     const seniorIds = familyConnections.map(fc => fc.senior_id);
 
+    // Get seniors info
+    const seniors = await db.collection('users').find({
+      id: { $in: seniorIds },
+      is_active: true
+    }).toArray();
+
     // Get recent check-ins from seniors
     const recentCheckIns = await db.collection('daily_checkins').find({
-      user_id: { $in: seniorIds },
-      created_at: { $gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) } // Last 7 days
+      user_id: { $in: seniorIds }
     }).sort({ created_at: -1 }).limit(10).toArray();
 
     return {
-      familyMembers: familyConnections.length,
-      recentActivity: recentCheckIns.length,
+      user: { id: userId, role: 'caregiver' },
+      familyMembers: seniors,
+      recentActivity: recentCheckIns,
       alerts: [],
-      upcomingReminders: []
+      summary: {
+        totalSeniors: seniors.length,
+        recentCheckIns: recentCheckIns.length
+      }
     };
   } catch (error) {
     logger.error('Error getting caregiver dashboard:', error);
