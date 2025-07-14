@@ -67,45 +67,6 @@ router.get('/', authenticate, asyncHandler(async (req, res) => {
   });
 }));
 
-  const query = `
-    SELECT 
-      id, user_id, date, mood_rating, energy_level, pain_level, 
-      sleep_quality, appetite_rating, hydration_glasses, medications_taken,
-      exercise_minutes, social_interaction, notes, voice_note_url,
-      completed_at, created_at, updated_at
-    FROM daily_checkins 
-    ${whereClause}
-  `;
-
-  const checkInsResult = await pool.query(query, params);
-
-  // Get total count for pagination
-  const countQuery = `
-    SELECT COUNT(*) as total 
-    FROM daily_checkins 
-    WHERE user_id = $1 
-    ${start_date ? 'AND date >= $2' : ''}
-    ${end_date ? `AND date >= $${start_date ? 3 : 2}` : ''}
-  `;
-
-  const countParams = [userId];
-  if (start_date) countParams.push(start_date);
-  if (end_date) countParams.push(end_date);
-
-  const countResult = await pool.query(countQuery, countParams);
-  const totalCount = parseInt(countResult.rows[0].total);
-
-  res.json({
-    checkIns: checkInsResult.rows,
-    pagination: {
-      page: parseInt(page),
-      limit: parseInt(limit),
-      total: totalCount,
-      totalPages: Math.ceil(totalCount / limit)
-    }
-  });
-}));
-
 /**
  * @route GET /api/checkins/today
  * @desc Get today's check-in for authenticated user
