@@ -321,12 +321,11 @@ const rateLimitPerUser = (maxRequests = 100, windowMinutes = 15) => {
 // Logout (blacklist token)
 const logout = asyncHandler(async (req, res, next) => {
   if (req.token) {
-    // Add token to blacklist
-    await sessionHelpers.set(`blacklist:${req.token}`, true, 24 * 60 * 60); // 24 hours
+    // Skip token blacklisting for now (Redis not available)
+    // TODO: Implement token blacklisting when Redis is available
     
-    // Clear user session
+    // Log user logout
     if (req.user) {
-      await sessionHelpers.deleteSession(req.user.id);
       logger.auth('User logged out', req.user.id);
     }
   }
