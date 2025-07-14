@@ -120,34 +120,41 @@ router.post('/', authenticate, asyncHandler(async (req, res) => {
     end_date, photo_url
   } = value;
 
-  const client = await pool.connect();
-  try {
-    await client.query('BEGIN');
+  const db = getDB();
 
-    const result = await client.query(
-      `INSERT INTO medications 
-       (user_id, name, dosage, frequency, times, instructions, prescriber_name,
-        prescription_number, refills_remaining, side_effects, start_date, end_date, photo_url)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
-       RETURNING *`,
-      [
-        userId, name, dosage, frequency, JSON.stringify(times), instructions,
-        prescriber_name, prescription_number, refills_remaining, side_effects,
-        start_date, end_date, photo_url
-      ]
-    );
+  // Create medication document
+  const medicationId = uuidv4();
+  const medicationDoc = {
+    id: medicationId,
+    user_id: userId,
+    name,
+    dosage,
+    frequency,
+    times,
+    instructions: instructions || '',
+    prescriber_name: prescriber_name || '',
+    prescription_number: prescription_number || '',
+    refills_remaining: refills_remaining || 0,
+    side_effects: side_effects || '',
+    start_date: start_date ? new Date(start_date) : new Date(),
+    end_date: end_date ? new Date(end_date) : null,
+    photo_url: photo_url || null,
+    is_active: true,
+    created_at: new Date(),
+    updated_at: new Date()
+  };
 
-    const medication = result.rows[0];
+  // Insert medication into database
+  await db.collection('medications').insertOne(medicationDoc);
 
-    // Create initial reminders for the medication
-    await createMedicationReminders(client, medication);
+  // TODO: Create medication reminders (simplified for now)
+  logger.info(`Medication created: ${name} for user ${userId}`);
 
-    await client.query('COMMIT');
-
-    logger.info(`Medication created: ${name} for user ${userId}`);
-
-    res.status(201).json({
-      message: 'Medication created successfully',
+  res.status(201).json({
+    message: 'Medication created successfully',
+    medication: medicationDoc
+  });
+}));
       medication: medication
     });
 
