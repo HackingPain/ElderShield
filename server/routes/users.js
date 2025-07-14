@@ -108,30 +108,9 @@ router.get('/family-connections', authenticate, asyncHandler(async (req, res) =>
     count: familyConnections.length
   });
 }));
-    `;
-    params = [userId];
-  } else {
-    // Admin can see all connections
-    query = `
-      SELECT 
-        fc.id, fc.senior_id, fc.caregiver_id, fc.relationship, 
-        fc.permissions, fc.status, fc.created_at,
-        s.first_name as senior_first_name, s.last_name as senior_last_name,
-        c.first_name as caregiver_first_name, c.last_name as caregiver_last_name
-      FROM family_connections fc
-      JOIN users s ON fc.senior_id = s.id
-      JOIN users c ON fc.caregiver_id = c.id
-      ORDER BY fc.created_at DESC
-      LIMIT 100
-    `;
-    params = [];
-  }
 
-  const result = await pool.query(query, params);
-
-  res.json({
-    connections: result.rows
-  });
+/**
+ * @route POST /api/users/family-connections
 }));
 
 /**
