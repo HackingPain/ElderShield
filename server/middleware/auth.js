@@ -121,9 +121,10 @@ const authenticate = asyncHandler(async (req, res, next) => {
       if (expirationDate < new Date()) {
         user.subscription_tier = 'free';
         // Update in database
-        await pool.query(
-          'UPDATE users SET subscription_tier = $1 WHERE id = $2',
-          ['free', user.id]
+        const db = getDB();
+        await db.collection('users').updateOne(
+          { id: user.id },
+          { $set: { subscription_tier: 'free', updated_at: new Date() } }
         );
       }
     }
