@@ -138,7 +138,7 @@ router.get('/today', authenticate, asyncHandler(async (req, res) => {
 
 /**
  * @route POST /api/checkins
- * @desc Create or update today's check-in
+ * @desc Create or update daily check-in
  * @access Private
  */
 router.post('/', authenticate, asyncHandler(async (req, res) => {
@@ -156,68 +156,65 @@ router.post('/', authenticate, asyncHandler(async (req, res) => {
     notes, voice_note_url
   } = value;
 
-  const client = await pool.connect();
-  try {
-    await client.query('BEGIN');
+  const db = getDB();
 
-    // Check if check-in already exists for today
-    const existingCheckIn = await client.query(
-      'SELECT id FROM daily_checkins WHERE user_id = $1 AND date = $2',
-      [userId, today]
+  // Check if check-in already exists for today
+  const existingCheckIn = await db.collection('daily_checkins').findOne({
+    user_id: userId,
+    check_date: today
+  });
+
+  let checkIn;
+  const checkInData = {
+    user_id: userId,
+    check_date: today,
+    mood_rating,
+    energy_level,
+    pain_level,
+    sleep_quality,
+    appetite_rating,
+    hydration_glasses,
+    medications_taken,
+    exercise_minutes,
+    social_interaction,
+    notes,
+    voice_note_url,
+    completed_at: new Date(),
+    updated_at: new Date()
+  };
+
+  if (existingCheckIn) {
+    // Update existing check-in
+    await db.collection('daily_checkins').updateOne(
+      { user_id: userId, check_date: today },
+      { $set: checkInData }
     );
+    checkIn = { ...existingCheckIn, ...checkInData };
+  } else {
+    // Create new check-in
+    checkInData.id = uuidv4();
+    checkInData.created_at = new Date();
+    await db.collection('daily_checkins').insertOne(checkInData);
+    checkIn = checkInData;
+  }
 
-    let checkInResult;
-    if (existingCheckIn.rows.length > 0) {
-      // Update existing check-in
-      checkInResult = await client.query(
-        `UPDATE daily_checkins 
-         SET mood_rating = $1, energy_level = $2, pain_level = $3, 
-             sleep_quality = $4, appetite_rating = $5, hydration_glasses = $6,
-             medications_taken = $7, exercise_minutes = $8, social_interaction = $9,
-             notes = $10, voice_note_url = $11, completed_at = CURRENT_TIMESTAMP,
-             updated_at = CURRENT_TIMESTAMP
-         WHERE user_id = $12 AND date = $13
-         RETURNING *`,
-        [
-          mood_rating, energy_level, pain_level, sleep_quality, appetite_rating,
-          hydration_glasses, medications_taken, exercise_minutes, social_interaction,
-          notes, voice_note_url, userId, today
-        ]
-      );
-    } else {
-      // Create new check-in
-      checkInResult = await client.query(
-        `INSERT INTO daily_checkins 
-         (user_id, date, mood_rating, energy_level, pain_level, sleep_quality,
-          appetite_rating, hydration_glasses, medications_taken, exercise_minutes,
-          social_interaction, notes, voice_note_url, completed_at)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, CURRENT_TIMESTAMP)
-         RETURNING *`,
-        [
-          userId, today, mood_rating, energy_level, pain_level, sleep_quality,
-          appetite_rating, hydration_glasses, medications_taken, exercise_minutes,
-          social_interaction, notes, voice_note_url
-        ]
-      );
-    }
+  // Simple alert logic - if concerning metrics, log for potential caregiver notification
+  if (mood_rating <= 2 || energy_level <= 2 || pain_level >= 4) {
+    logger.warn('Concerning check-in metrics detected', {
+      userId,
+      mood_rating,
+      energy_level,
+      pain_level
+    });
+  }
 
-    await client.query('COMMIT');
+  logger.info('Daily check-in completed', { userId, date: today });
 
-    const checkIn = checkInResult.rows[0];
-
-    // Notify caregivers if there are concerning metrics
-    if (mood_rating <= 2 || energy_level <= 2 || pain_level >= 4) {
-      // Get caregivers for notifications
-      const caregiversResult = await client.query(
-        `SELECT u.id, u.first_name, u.last_name, u.email 
-         FROM users u 
-         JOIN family_connections fc ON u.id = fc.caregiver_id 
-         WHERE fc.senior_id = $1 AND fc.status = 'active'`,
-        [userId]
-      );
-
-      // Send notifications to caregivers (implement notification logic)
-      for (const caregiver of caregiversResult.rows) {
+  res.status(existingCheckIn ? 200 : 201).json({
+    message: existingCheckIn ? 'Check-in updated successfully' : 'Check-in created successfully',
+    checkIn
+  });
+}));
         // This would integrate with your notification system
         logger.info(`Sending wellness concern notification to caregiver ${caregiver.id}`);
       }
