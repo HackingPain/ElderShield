@@ -64,17 +64,8 @@ router.get('/', authenticate, asyncHandler(async (req, res) => {
   });
 }));
 
-  query += ' ORDER BY name ASC';
-
-  const result = await pool.query(query, params);
-
-  res.json({
-    medications: result.rows
-  });
-}));
-
 /**
- * @route GET /api/medications/:id
+ * @route POST /api/medications
  * @desc Get specific medication by ID
  * @access Private
  */
