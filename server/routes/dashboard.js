@@ -14,14 +14,8 @@ const router = express.Router();
 router.get('/', authenticate, asyncHandler(async (req, res) => {
   const userId = req.user.id;
   const userRole = req.user.role;
-  const cacheKey = `dashboard:${userId}`;
 
-  // Try to get cached data first
-  const cachedData = await cacheHelpers.get(cacheKey);
-  if (cachedData) {
-    return res.json(cachedData);
-  }
-
+  // Skip caching for now (Redis not available)
   let dashboardData;
 
   if (userRole === 'senior') {
@@ -31,9 +25,6 @@ router.get('/', authenticate, asyncHandler(async (req, res) => {
   } else {
     dashboardData = await getAdminDashboard(userId);
   }
-
-  // Cache the data for 10 minutes
-  await cacheHelpers.set(cacheKey, dashboardData, 600);
 
   res.json(dashboardData);
 }));
