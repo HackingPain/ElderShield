@@ -116,9 +116,10 @@
 - **Database Layer**: Routes import `{ pool }` but config only exports MongoDB functions (`connectDB`, `getDB`)
 
 ### Recommendations for Main Agent
-1. **IMMEDIATE ACTION REQUIRED**: Choose and implement consistent database architecture
-   - Option A: Convert MongoDB config to PostgreSQL with proper pool setup
-   - Option B: Convert all routes from PostgreSQL syntax to MongoDB operations
-2. **HIGH PRIORITY**: Fix health endpoint routing to work under `/api/health`
-3. **MEDIUM PRIORITY**: Test all endpoints after database fix
-4. **LOW PRIORITY**: Frontend integration (blocked until backend functional)
+1. **IMMEDIATE ACTION REQUIRED**: Fix database architecture mismatch in core API routes
+   - Convert dashboard.js, checkins.js, medications.js, users.js, vitals.js from PostgreSQL to MongoDB syntax
+   - Replace `pool.query()` calls with MongoDB collection operations
+   - Remove or implement proper fallbacks for Redis cache dependencies
+2. **HIGH PRIORITY**: Test all endpoints after database architecture fixes
+3. **MEDIUM PRIORITY**: Frontend integration testing (authentication system now ready)
+4. **ACHIEVEMENT**: Authentication system fully functional - major milestone reached
