@@ -393,34 +393,34 @@ router.post('/bulk-import', authenticate, asyncHandler(async (req, res) => {
     throw new ValidationError('Validation failed', error.details);
   }
 
-  const client = await pool.connect();
+  const db = getDB();
+  
   try {
-    await client.query('BEGIN');
-
     const insertedReadings = [];
     const abnormalReadings = [];
 
     for (const reading of value.readings) {
       const isAbnormal = checkIfAbnormal(reading.reading_type, reading.value);
       
-      const result = await client.query(
-        `INSERT INTO vitals_readings 
-         (user_id, reading_type, value, unit, device_id, device_name, 
-          reading_time, is_abnormal, notes)
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-         RETURNING *`,
-        [
-          userId, reading.reading_type, JSON.stringify(reading.value), 
-          reading.unit, device_id, device_name, reading.reading_time || new Date(),
-          isAbnormal, reading.notes || null
-        ]
-      );
+      const vitalReading = {
+        id: uuidv4(),
+        user_id: userId,
+        reading_type: reading.reading_type,
+        value: reading.value,
+        unit: reading.unit,
+        device_id: device_id,
+        device_name: device_name,
+        reading_time: reading.reading_time || new Date(),
+        is_abnormal: isAbnormal,
+        notes: reading.notes || null,
+        created_at: new Date()
+      };
 
-      const insertedReading = result.rows[0];
-      insertedReadings.push(insertedReading);
+      await db.collection('vitals').insertOne(vitalReading);
+      insertedReadings.push(vitalReading);
 
       if (isAbnormal) {
-        abnormalReadings.push(insertedReading);
+        abnormalReadings.push(vitalReading);
       }
     }
 
@@ -430,15 +430,19 @@ router.post('/bulk-import', authenticate, asyncHandler(async (req, res) => {
         ? `Abnormal ${abnormalReadings[0].reading_type.replace('_', ' ')} reading detected`
         : `${abnormalReadings.length} abnormal vital readings detected`;
 
-      await client.query(
-        `INSERT INTO emergency_alerts 
-         (user_id, alert_type, severity, message, vitals_data)
-         VALUES ($1, 'vitals_abnormal', 'medium', $2, $3)`,
-        [userId, alertMessage, JSON.stringify(abnormalReadings)]
-      );
-    }
+      const alert = {
+        id: uuidv4(),
+        user_id: userId,
+        alert_type: 'vitals_abnormal',
+        severity: 'medium',
+        message: alertMessage,
+        vitals_data: abnormalReadings,
+        created_at: new Date(),
+        status: 'active'
+      };
 
-    await client.query('COMMIT');
+      await db.collection('emergency_alerts').insertOne(alert);
+    }
 
     logger.info(`Bulk imported ${insertedReadings.length} vital readings for user ${userId}, ${abnormalReadings.length} abnormal`);
 
@@ -451,10 +455,8 @@ router.post('/bulk-import', authenticate, asyncHandler(async (req, res) => {
     });
 
   } catch (error) {
-    await client.query('ROLLBACK');
+    logger.error('Error in bulk import:', error);
     throw error;
-  } finally {
-    client.release();
   }
 }));
 
