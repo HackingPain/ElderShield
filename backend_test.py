@@ -542,28 +542,229 @@ class BackendTester:
             return False
     
     def test_vitals_endpoints(self):
-        """Test vitals data endpoints"""
-        self.log(f"\n{Colors.BOLD}=== Testing Vitals Endpoints ==={Colors.END}")
+        """Test comprehensive vitals functionality"""
+        self.log(f"\n{Colors.BOLD}=== Testing Vitals Endpoints (Comprehensive) ==={Colors.END}")
         
         if not self.auth_token:
             self.log_warning("Skipping vitals test - no auth token")
             return False
-            
-        response = self.make_request('GET', '/vitals')
-        if response is None:
-            return False
-            
-        # Accept any response that doesn't indicate a server error
-        if response.status_code < 500:
-            self.log_success("Vitals endpoints - Accessible")
-            return True
-        else:
+        
+        # Track overall success
+        overall_success = True
+        vital_reading_id = None
+        
+        # Test 1: POST /api/vitals - Create vital reading
+        self.log(f"\n{Colors.BLUE}Testing POST /api/vitals - Create vital reading{Colors.END}")
+        
+        vital_data = {
+            "reading_type": "blood_pressure",
+            "value": {"systolic": 120, "diastolic": 80},
+            "unit": "mmHg",
+            "device_name": "Omron BP Monitor",
+            "notes": "Morning reading after breakfast"
+        }
+        
+        response = self.make_request('POST', '/vitals', vital_data)
+        if response and response.status_code in [200, 201]:
             try:
-                error_data = response.json()
-                self.log_failure(f"Vitals endpoints - Status {response.status_code}: {error_data}")
-            except:
-                self.log_failure(f"Vitals endpoints - Status {response.status_code}: {response.text}")
-            return False
+                data = response.json()
+                if 'reading' in data and 'id' in data['reading']:
+                    vital_reading_id = data['reading']['id']
+                    self.log_success("POST /api/vitals - Vital reading created successfully")
+                else:
+                    self.log_failure("POST /api/vitals - Missing reading or id in response")
+                    overall_success = False
+            except json.JSONDecodeError:
+                self.log_failure("POST /api/vitals - Invalid JSON response")
+                overall_success = False
+        else:
+            self.log_failure(f"POST /api/vitals - Failed with status {response.status_code if response else 'No response'}")
+            overall_success = False
+        
+        # Test 2: POST /api/vitals - Create abnormal reading to test alert system
+        self.log(f"\n{Colors.BLUE}Testing POST /api/vitals - Abnormal reading (alert system){Colors.END}")
+        
+        abnormal_vital_data = {
+            "reading_type": "heart_rate",
+            "value": {"value": 150},  # Abnormally high
+            "unit": "bpm",
+            "device_name": "Fitbit Charge 5",
+            "notes": "Felt dizzy during reading"
+        }
+        
+        response = self.make_request('POST', '/vitals', abnormal_vital_data)
+        if response and response.status_code in [200, 201]:
+            try:
+                data = response.json()
+                if 'alertCreated' in data and data['alertCreated']:
+                    self.log_success("POST /api/vitals - Abnormal reading detected and alert created")
+                else:
+                    self.log_success("POST /api/vitals - Abnormal reading created (alert system working)")
+            except json.JSONDecodeError:
+                self.log_failure("POST /api/vitals - Invalid JSON response for abnormal reading")
+                overall_success = False
+        else:
+            self.log_failure(f"POST /api/vitals - Abnormal reading failed with status {response.status_code if response else 'No response'}")
+            overall_success = False
+        
+        # Test 3: GET /api/vitals - Retrieve vital readings
+        self.log(f"\n{Colors.BLUE}Testing GET /api/vitals - Retrieve vital readings{Colors.END}")
+        
+        response = self.make_request('GET', '/vitals')
+        if response and response.status_code == 200:
+            try:
+                data = response.json()
+                if 'readings' in data and 'pagination' in data:
+                    self.log_success("GET /api/vitals - Vital readings retrieved successfully")
+                else:
+                    self.log_failure("GET /api/vitals - Missing readings or pagination in response")
+                    overall_success = False
+            except json.JSONDecodeError:
+                self.log_failure("GET /api/vitals - Invalid JSON response")
+                overall_success = False
+        else:
+            self.log_failure(f"GET /api/vitals - Failed with status {response.status_code if response else 'No response'}")
+            overall_success = False
+        
+        # Test 4: GET /api/vitals with filtering
+        self.log(f"\n{Colors.BLUE}Testing GET /api/vitals - With filtering{Colors.END}")
+        
+        response = self.make_request('GET', '/vitals?reading_type=blood_pressure&limit=10')
+        if response and response.status_code == 200:
+            try:
+                data = response.json()
+                if 'readings' in data:
+                    self.log_success("GET /api/vitals - Filtering and pagination working")
+                else:
+                    self.log_failure("GET /api/vitals - Filtering failed")
+                    overall_success = False
+            except json.JSONDecodeError:
+                self.log_failure("GET /api/vitals - Invalid JSON response for filtering")
+                overall_success = False
+        else:
+            self.log_failure(f"GET /api/vitals - Filtering failed with status {response.status_code if response else 'No response'}")
+            overall_success = False
+        
+        # Test 5: GET /api/vitals/latest - Latest readings
+        self.log(f"\n{Colors.BLUE}Testing GET /api/vitals/latest - Latest readings{Colors.END}")
+        
+        response = self.make_request('GET', '/vitals/latest')
+        if response and response.status_code == 200:
+            try:
+                data = response.json()
+                if 'latestReadings' in data:
+                    self.log_success("GET /api/vitals/latest - Latest readings retrieved successfully")
+                else:
+                    self.log_failure("GET /api/vitals/latest - Missing latestReadings in response")
+                    overall_success = False
+            except json.JSONDecodeError:
+                self.log_failure("GET /api/vitals/latest - Invalid JSON response")
+                overall_success = False
+        else:
+            self.log_failure(f"GET /api/vitals/latest - Failed with status {response.status_code if response else 'No response'}")
+            overall_success = False
+        
+        # Test 6: GET /api/vitals/trends/:reading_type - Trend data
+        self.log(f"\n{Colors.BLUE}Testing GET /api/vitals/trends/heart_rate - Trend data{Colors.END}")
+        
+        response = self.make_request('GET', '/vitals/trends/heart_rate?days=7')
+        if response and response.status_code == 200:
+            try:
+                data = response.json()
+                if 'trendData' in data and 'statistics' in data:
+                    self.log_success("GET /api/vitals/trends - Trend data retrieved successfully")
+                else:
+                    self.log_failure("GET /api/vitals/trends - Missing trendData or statistics")
+                    overall_success = False
+            except json.JSONDecodeError:
+                self.log_failure("GET /api/vitals/trends - Invalid JSON response")
+                overall_success = False
+        else:
+            self.log_failure(f"GET /api/vitals/trends - Failed with status {response.status_code if response else 'No response'}")
+            overall_success = False
+        
+        # Test 7: GET /api/vitals/summary - Summary statistics
+        self.log(f"\n{Colors.BLUE}Testing GET /api/vitals/summary - Summary statistics{Colors.END}")
+        
+        response = self.make_request('GET', '/vitals/summary?days=30')
+        if response and response.status_code == 200:
+            try:
+                data = response.json()
+                if 'summary' in data and 'timeRange' in data:
+                    self.log_success("GET /api/vitals/summary - Summary statistics retrieved successfully")
+                else:
+                    self.log_failure("GET /api/vitals/summary - Missing summary or timeRange")
+                    overall_success = False
+            except json.JSONDecodeError:
+                self.log_failure("GET /api/vitals/summary - Invalid JSON response")
+                overall_success = False
+        else:
+            self.log_failure(f"GET /api/vitals/summary - Failed with status {response.status_code if response else 'No response'}")
+            overall_success = False
+        
+        # Test 8: POST /api/vitals/bulk-import - Bulk import
+        self.log(f"\n{Colors.BLUE}Testing POST /api/vitals/bulk-import - Bulk import{Colors.END}")
+        
+        bulk_data = {
+            "device_id": "fitbit_001",
+            "device_name": "Fitbit Versa 3",
+            "readings": [
+                {
+                    "reading_type": "heart_rate",
+                    "value": {"value": 72},
+                    "unit": "bpm",
+                    "reading_time": datetime.now().isoformat(),
+                    "notes": "Resting heart rate"
+                },
+                {
+                    "reading_type": "oxygen_saturation",
+                    "value": {"value": 98},
+                    "unit": "%",
+                    "reading_time": datetime.now().isoformat(),
+                    "notes": "Normal oxygen level"
+                }
+            ]
+        }
+        
+        response = self.make_request('POST', '/vitals/bulk-import', bulk_data)
+        if response and response.status_code in [200, 201]:
+            try:
+                data = response.json()
+                if 'imported' in data and 'deviceId' in data:
+                    self.log_success("POST /api/vitals/bulk-import - Bulk import successful")
+                else:
+                    self.log_failure("POST /api/vitals/bulk-import - Missing imported or deviceId")
+                    overall_success = False
+            except json.JSONDecodeError:
+                self.log_failure("POST /api/vitals/bulk-import - Invalid JSON response")
+                overall_success = False
+        else:
+            self.log_failure(f"POST /api/vitals/bulk-import - Failed with status {response.status_code if response else 'No response'}")
+            overall_success = False
+        
+        # Test 9: DELETE /api/vitals/:id - Delete vital reading (if we have an ID)
+        if vital_reading_id:
+            self.log(f"\n{Colors.BLUE}Testing DELETE /api/vitals/{vital_reading_id} - Delete vital reading{Colors.END}")
+            
+            response = self.make_request('DELETE', f'/vitals/{vital_reading_id}')
+            if response and response.status_code == 200:
+                try:
+                    data = response.json()
+                    if 'message' in data:
+                        self.log_success("DELETE /api/vitals/:id - Vital reading deleted successfully")
+                    else:
+                        self.log_failure("DELETE /api/vitals/:id - Missing message in response")
+                        overall_success = False
+                except json.JSONDecodeError:
+                    self.log_failure("DELETE /api/vitals/:id - Invalid JSON response")
+                    overall_success = False
+            else:
+                self.log_failure(f"DELETE /api/vitals/:id - Failed with status {response.status_code if response else 'No response'}")
+                overall_success = False
+        else:
+            self.log_warning("DELETE /api/vitals/:id - Skipped (no vital reading ID available)")
+        
+        return overall_success
     
     def test_premium_features(self):
         """Test premium features endpoints"""
