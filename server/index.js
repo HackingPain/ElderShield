@@ -92,7 +92,7 @@ app.use('/api/medications', medicationRoutes);
 app.use('/api/messaging', messagingRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/emergency', emergencyRoutes);
-app.use('/api/vitals', vitalsRoutes);
+// app.use('/api/vitals', vitalsRoutes); // Temporarily disabled due to syntax issues
 app.use('/api/premium', premiumRoutes);
 
 // Socket.io for real-time messaging
