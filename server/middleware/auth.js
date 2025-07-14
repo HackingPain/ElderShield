@@ -345,40 +345,41 @@ const authenticateWithFirebase = asyncHandler(async (req, res, next) => {
     const decodedToken = await authHelpers.verifyIdToken(idToken);
     
     // Find or create user in our database
-    const client = await pool.connect();
-    try {
-      let result = await client.query(
-        'SELECT * FROM users WHERE email = $1 AND is_active = true',
-        [decodedToken.email]
-      );
+    const db = getDB();
+    let user = await db.collection('users').findOne(
+      { email: decodedToken.email, is_active: true }
+    );
+    
+    if (!user) {
+      // Create new user
+      const userId = require('uuid').v4();
+      const userDoc = {
+        id: userId,
+        email: decodedToken.email,
+        first_name: decodedToken.name?.split(' ')[0] || 'User',
+        last_name: decodedToken.name?.split(' ').slice(1).join(' ') || '',
+        profile_picture_url: decodedToken.picture || null,
+        email_verified: decodedToken.email_verified || false,
+        role: 'senior',
+        subscription_tier: 'free',
+        is_active: true,
+        created_at: new Date(),
+        updated_at: new Date()
+      };
       
-      if (result.rows.length === 0) {
-        // Create new user
-        result = await client.query(`
-          INSERT INTO users (email, first_name, last_name, profile_picture_url, email_verified)
-          VALUES ($1, $2, $3, $4, $5)
-          RETURNING *
-        `, [
-          decodedToken.email,
-          decodedToken.name?.split(' ')[0] || 'User',
-          decodedToken.name?.split(' ').slice(1).join(' ') || '',
-          decodedToken.picture || null,
-          decodedToken.email_verified || false
-        ]);
-      }
-      
-      req.user = result.rows[0];
-      req.firebaseToken = idToken;
-      
-      logger.auth('Firebase authentication successful', req.user.id, {
-        email: req.user.email,
-        provider: 'firebase'
-      });
-      
-      next();
-    } finally {
-      client.release();
+      await db.collection('users').insertOne(userDoc);
+      user = userDoc;
     }
+    
+    req.user = user;
+    req.firebaseToken = idToken;
+    
+    logger.auth('Firebase authentication successful', req.user.id, {
+      email: req.user.email,
+      provider: 'firebase'
+    });
+    
+    next();
   } catch (error) {
     logger.auth('Firebase authentication failed', null, { error: error.message });
     throw new AuthenticationError('Firebase authentication failed');
