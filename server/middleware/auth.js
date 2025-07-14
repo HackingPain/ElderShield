@@ -140,8 +140,8 @@ const authenticate = asyncHandler(async (req, res, next) => {
       ip: req.ip 
     });
     
-    // Update last activity
-    await sessionHelpers.refreshSession(user.id);
+    // Skip session refresh for now (Redis not available)
+    // TODO: Implement session management when Redis is available
     
     next();
   } catch (error) {
