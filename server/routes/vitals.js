@@ -309,32 +309,39 @@ router.get('/trends/:reading_type', authenticate, asyncHandler(async (req, res) 
 router.get('/summary', authenticate, asyncHandler(async (req, res) => {
   const userId = req.user.id;
   const { days = 30 } = req.query;
+  const db = getDB();
 
-  const result = await pool.query(
-    `SELECT 
-      reading_type,
-      COUNT(*) as total_readings,
-      COUNT(CASE WHEN is_abnormal = true THEN 1 END) as abnormal_readings,
-      MAX(reading_time) as last_reading_time
-     FROM vitals_readings
-     WHERE user_id = $1 
-     AND reading_time >= CURRENT_DATE - INTERVAL '${days} days'
-     GROUP BY reading_type
-     ORDER BY reading_type`,
-    [userId]
-  );
+  const startDate = new Date();
+  startDate.setDate(startDate.getDate() - parseInt(days));
+
+  const vitalTypes = ['blood_pressure', 'heart_rate', 'blood_glucose', 'weight', 
+                     'oxygen_saturation', 'temperature', 'respiratory_rate'];
 
   const summary = {};
-  result.rows.forEach(row => {
-    summary[row.reading_type] = {
-      totalReadings: parseInt(row.total_readings),
-      abnormalReadings: parseInt(row.abnormal_readings),
-      abnormalPercentage: row.total_readings > 0 
-        ? Math.round((row.abnormal_readings / row.total_readings) * 100)
-        : 0,
-      lastReadingTime: row.last_reading_time
-    };
-  });
+
+  for (const type of vitalTypes) {
+    const readings = await db.collection('vitals')
+      .find({
+        user_id: userId,
+        reading_type: type,
+        reading_time: { $gte: startDate }
+      })
+      .toArray();
+
+    if (readings.length > 0) {
+      const abnormalCount = readings.filter(r => r.is_abnormal).length;
+      const latestReading = readings.reduce((latest, current) => 
+        current.reading_time > latest.reading_time ? current : latest
+      );
+
+      summary[type] = {
+        totalReadings: readings.length,
+        abnormalReadings: abnormalCount,
+        abnormalPercentage: Math.round((abnormalCount / readings.length) * 100),
+        lastReadingTime: latestReading.reading_time
+      };
+    }
+  }
 
   res.json({
     timeRange: `${days} days`,
