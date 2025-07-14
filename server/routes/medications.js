@@ -43,21 +43,26 @@ router.get('/', authenticate, asyncHandler(async (req, res) => {
   const userId = req.user.id;
   const { active_only = 'true' } = req.query;
 
-  let query = `
-    SELECT 
-      id, user_id, name, dosage, frequency, times, instructions,
-      prescriber_name, prescription_number, refills_remaining,
-      side_effects, photo_url, is_active, start_date, end_date,
-      created_at, updated_at
-    FROM medications 
-    WHERE user_id = $1
-  `;
-
-  const params = [userId];
-
+  const db = getDB();
+  
+  // Build query filter
+  const filter = { user_id: userId };
+  
   if (active_only === 'true') {
-    query += ' AND is_active = true';
+    filter.is_active = true;
   }
+
+  // Get medications
+  const medications = await db.collection('medications')
+    .find(filter)
+    .sort({ created_at: -1 })
+    .toArray();
+
+  res.json({
+    medications,
+    count: medications.length
+  });
+}));
 
   query += ' ORDER BY name ASC';
 
