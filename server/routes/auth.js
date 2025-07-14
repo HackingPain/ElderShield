@@ -2,10 +2,8 @@ const express = require('express');
 const bcrypt = require('bcrypt');
 const crypto = require('crypto');
 const Joi = require('joi');
-const { pool } = require('../config/database');
-const { sessionHelpers, cacheHelpers } = require('../config/redis');
-const { authHelpers } = require('../config/firebase');
-const { generateToken, authenticate, logout } = require('../middleware/auth');
+const { v4: uuidv4 } = require('uuid');
+const { getDB } = require('../config/database');
 const { asyncHandler, ValidationError, AuthenticationError, ConflictError } = require('../middleware/errorHandler');
 const { logger } = require('../utils/logger');
 
