@@ -146,16 +146,6 @@ router.post('/', authenticate, asyncHandler(async (req, res) => {
     medication: medicationDoc
   });
 }));
-      medication: medication
-    });
-
-  } catch (error) {
-    await client.query('ROLLBACK');
-    throw error;
-  } finally {
-    client.release();
-  }
-}));
 
 /**
  * @route PUT /api/medications/:id
