@@ -197,11 +197,23 @@ router.get('/', authenticate, asyncHandler(async (req, res) => {
   const total = await db.collection('vitals').countDocuments(filter);
 
   res.json({
-    vitals,
+    readings: vitals.map(vital => ({
+      id: vital.id,
+      readingType: vital.reading_type,
+      value: vital.value,
+      unit: vital.unit,
+      deviceId: vital.device_id,
+      deviceName: vital.device_name,
+      readingTime: vital.reading_time,
+      isAbnormal: vital.is_abnormal,
+      notes: vital.notes,
+      createdAt: vital.created_at
+    })),
     pagination: {
-      currentPage: parseInt(page),
+      page: parseInt(page),
+      limit: parseInt(limit),
+      total: total,
       totalPages: Math.ceil(total / limit),
-      totalCount: total,
       hasNextPage: page * limit < total,
       hasPrevPage: page > 1
     }
