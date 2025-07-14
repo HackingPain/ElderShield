@@ -1,10 +1,10 @@
 const express = require('express');
 const Joi = require('joi');
-const { pool } = require('../config/database');
+const { v4: uuidv4 } = require('uuid');
+const { getDB } = require('../config/database');
 const { authenticate } = require('../middleware/auth');
 const { asyncHandler, ValidationError } = require('../middleware/errorHandler');
-const { cacheHelpers } = require('../config/redis');
-const logger = require('../utils/logger');
+const { logger } = require('../utils/logger');
 
 const router = express.Router();
 
