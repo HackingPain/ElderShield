@@ -328,57 +328,10 @@ const logout = asyncHandler(async (req, res, next) => {
   next();
 });
 
-// Firebase authentication integration
+// Firebase authentication integration (commented out for now)
 const authenticateWithFirebase = asyncHandler(async (req, res, next) => {
-  const idToken = req.headers['firebase-id-token'];
-  
-  if (!idToken) {
-    throw new AuthenticationError('Firebase ID token required');
-  }
-  
-  try {
-    const decodedToken = await authHelpers.verifyIdToken(idToken);
-    
-    // Find or create user in our database
-    const db = getDB();
-    let user = await db.collection('users').findOne(
-      { email: decodedToken.email, is_active: true }
-    );
-    
-    if (!user) {
-      // Create new user
-      const userId = require('uuid').v4();
-      const userDoc = {
-        id: userId,
-        email: decodedToken.email,
-        first_name: decodedToken.name?.split(' ')[0] || 'User',
-        last_name: decodedToken.name?.split(' ').slice(1).join(' ') || '',
-        profile_picture_url: decodedToken.picture || null,
-        email_verified: decodedToken.email_verified || false,
-        role: 'senior',
-        subscription_tier: 'free',
-        is_active: true,
-        created_at: new Date(),
-        updated_at: new Date()
-      };
-      
-      await db.collection('users').insertOne(userDoc);
-      user = userDoc;
-    }
-    
-    req.user = user;
-    req.firebaseToken = idToken;
-    
-    logger.auth('Firebase authentication successful', req.user.id, {
-      email: req.user.email,
-      provider: 'firebase'
-    });
-    
-    next();
-  } catch (error) {
-    logger.auth('Firebase authentication failed', null, { error: error.message });
-    throw new AuthenticationError('Firebase authentication failed');
-  }
+  // Firebase integration not available - return error
+  throw new AuthenticationError('Firebase authentication not available');
 });
 
 module.exports = {
