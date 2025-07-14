@@ -123,7 +123,7 @@ router.post('/login', asyncHandler(async (req, res) => {
   }
 
   // Generate token
-  const token = generateToken({
+  const token = generateTokenLocal({
     userId: user.id,
     email: user.email,
     role: user.role
