@@ -215,9 +215,6 @@ router.post('/', authenticate, asyncHandler(async (req, res) => {
     checkIn
   });
 }));
-
-    res.json({
-      message: 'Check-in saved successfully',
       checkIn: checkIn,
       isUpdate: existingCheckIn.rows.length > 0
     });
