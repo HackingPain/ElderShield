@@ -1,7 +1,5 @@
 const jwt = require('jsonwebtoken');
-const { pool } = require('../config/database');
-const { sessionHelpers } = require('../config/redis');
-const { authHelpers } = require('../config/firebase');
+const { getDB } = require('../config/database');
 const { logger } = require('../utils/logger');
 const { 
   AuthenticationError, 
