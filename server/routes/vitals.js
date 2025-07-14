@@ -159,25 +159,49 @@ router.get('/', authenticate, asyncHandler(async (req, res) => {
     limit = 50,
     abnormal_only = 'false'
   } = req.query;
-  const offset = (page - 1) * limit;
+  const skip = (page - 1) * limit;
 
-  let whereClause = 'WHERE user_id = $1';
-  let params = [userId];
-  let paramCount = 1;
-
+  const db = getDB();
+  
+  // Build query filter
+  const filter = { user_id: userId };
+  
   if (reading_type) {
-    paramCount++;
-    whereClause += ` AND reading_type = $${paramCount}`;
-    params.push(reading_type);
+    filter.reading_type = reading_type;
+  }
+  
+  if (start_date || end_date) {
+    filter.reading_time = {};
+    if (start_date) filter.reading_time.$gte = new Date(start_date);
+    if (end_date) filter.reading_time.$lte = new Date(end_date);
+  }
+  
+  if (abnormal_only === 'true') {
+    filter.is_abnormal = true;
   }
 
-  if (start_date) {
-    paramCount++;
-    whereClause += ` AND reading_time >= $${paramCount}`;
-    params.push(start_date);
-  }
+  // Get vitals with pagination
+  const vitals = await db.collection('vitals')
+    .find(filter)
+    .sort({ reading_time: -1 })
+    .skip(skip)
+    .limit(parseInt(limit))
+    .toArray();
 
-  if (end_date) {
+  // Get total count for pagination
+  const total = await db.collection('vitals').countDocuments(filter);
+
+  res.json({
+    vitals,
+    pagination: {
+      currentPage: parseInt(page),
+      totalPages: Math.ceil(total / limit),
+      totalCount: total,
+      hasNextPage: page * limit < total,
+      hasPrevPage: page > 1
+    }
+  });
+}));
     paramCount++;
     whereClause += ` AND reading_time <= $${paramCount}`;
     params.push(end_date);
