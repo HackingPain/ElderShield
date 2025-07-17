@@ -520,7 +520,7 @@ self.addEventListener('message', event => {
       break;
       
     default:
-      console.log('SeniorCare Hub SW: Unknown message type:', type);
+      console.log('ElderShield SW: Unknown message type:', type);
   }
 });
 
