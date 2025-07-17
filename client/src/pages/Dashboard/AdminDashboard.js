@@ -349,7 +349,7 @@ const AdminDashboard = ({ user }) => {
         {/* Footer */}
         <div className="text-center">
           <p className="text-gray-500">
-            SeniorCare Hub Admin Dashboard • Secure & HIPAA Compliant 🔐
+            ElderShield Admin Dashboard • Secure & HIPAA Compliant 🔐
           </p>
         </div>
       </div>
