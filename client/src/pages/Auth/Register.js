@@ -146,7 +146,7 @@ const Register = () => {
           <div className="text-4xl font-bold text-indigo-600 mb-2">🛡️</div>
         </div>
         <h2 className="text-center text-3xl font-bold text-gray-900 mb-2">
-          Join SeniorCare Hub
+          Join ElderShield
         </h2>
         <p className="text-center text-sm text-gray-600">
           Create your secure family care account
