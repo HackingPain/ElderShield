@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -70,7 +70,7 @@ const Login = () => {
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="spinner"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
       </div>
     );
   }
@@ -156,7 +156,7 @@ const Login = () => {
               )}
             </div>
 
-            {/* Remember Me & Forgot Password */}
+            {/* Remember Me */}
             <div className="flex items-center justify-between">
               <div className="flex items-center">
                 <input
@@ -171,15 +171,6 @@ const Login = () => {
                   Remember me
                 </label>
               </div>
-
-              <div className="text-sm">
-                <Link
-                  to="/forgot-password"
-                  className="font-medium text-indigo-600 hover:text-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                >
-                  Forgot your password?
-                </Link>
-              </div>
             </div>
 
             {/* Submit Button */}
@@ -191,7 +182,7 @@ const Login = () => {
               >
                 {loading ? (
                   <div className="flex items-center">
-                    <div className="spinner w-5 h-5 mr-2"></div>
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
                     Signing in...
                   </div>
                 ) : (
@@ -228,6 +219,7 @@ const Login = () => {
             <div className="text-xs text-blue-700 space-y-1">
               <div><strong>Senior:</strong> senior@demo.com / password123</div>
               <div><strong>Caregiver:</strong> caregiver@demo.com / password123</div>
+              <div><strong>Admin:</strong> admin@demo.com / password123</div>
             </div>
           </div>
         </div>
