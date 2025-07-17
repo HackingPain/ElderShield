@@ -4,6 +4,10 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { SocketProvider } from './contexts/SocketContext';
 import { useDevicePlatform } from './services/DevicePlatformService';
 
+// Components
+import Header from './components/Header';
+import Footer from './components/Footer';
+
 // Authentication Pages
 import Login from './pages/Auth/Login';
 import Register from './pages/Auth/Register';
