@@ -86,7 +86,7 @@ const Login = () => {
           Welcome Back
         </h2>
         <p className="text-center text-sm text-gray-600">
-          Sign in to your SeniorCare Hub account
+          Sign in to your ElderShield account
         </p>
       </div>
 
