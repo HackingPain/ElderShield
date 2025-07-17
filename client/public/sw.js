@@ -148,7 +148,7 @@ async function handlePageRequest(request) {
     <!DOCTYPE html>
     <html>
     <head>
-      <title>SeniorCare Hub - Offline</title>
+      <title>ElderShield - Offline</title>
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <style>
         body { 
