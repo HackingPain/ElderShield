@@ -43,7 +43,7 @@ self.addEventListener('activate', event => {
       return Promise.all(
         cacheNames.map(cacheName => {
           if (cacheName !== CACHE_NAME) {
-            console.log('SeniorCare Hub SW: Deleting old cache:', cacheName);
+            console.log('ElderShield SW: Deleting old cache:', cacheName);
             return caches.delete(cacheName);
           }
         })
