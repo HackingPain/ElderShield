@@ -132,7 +132,7 @@ async function handlePageRequest(request) {
       return networkResponse;
     }
   } catch (error) {
-    console.log('SeniorCare Hub SW: Page request failed, serving offline page');
+    console.log('ElderShield SW: Page request failed, serving offline page');
   }
 
   // Serve offline page
