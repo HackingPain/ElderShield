@@ -309,7 +309,7 @@ self.addEventListener('push', event => {
 
 // Notification Click Handling
 self.addEventListener('notificationclick', event => {
-  console.log('SeniorCare Hub SW: Notification clicked');
+  console.log('ElderShield SW: Notification clicked');
   
   const notification = event.notification;
   const action = event.action;
