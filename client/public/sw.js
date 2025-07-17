@@ -410,7 +410,7 @@ async function syncEmergencyData() {
     await clearStoredData('pendingEmergencyAlerts');
     console.log('ElderShield SW: Emergency data synced');
   } catch (error) {
-    console.error('SeniorCare Hub SW: Failed to sync emergency data:', error);
+    console.error('ElderShield SW: Failed to sync emergency data:', error);
   }
 }
 
