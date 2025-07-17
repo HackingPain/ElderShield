@@ -57,6 +57,7 @@ export const AuthProvider = ({ children }) => {
         console.error('Error loading user:', error);
         localStorage.removeItem('eldershield_user');
       }
+      // Always set loading to false after checking
       setLoading(false);
     };
 
