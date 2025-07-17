@@ -244,7 +244,7 @@ self.addEventListener('push', event => {
     tag: 'seniorcare-notification'
   };
 
-  let title = 'SeniorCare Hub';
+  let title = 'ElderShield';
   let body = 'You have a new notification';
 
   if (event.data) {
