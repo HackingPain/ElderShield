@@ -36,7 +36,7 @@ self.addEventListener('install', event => {
 
 // Activate Service Worker
 self.addEventListener('activate', event => {
-  console.log('SeniorCare Hub SW: Activating...');
+  console.log('ElderShield SW: Activating...');
   
   event.waitUntil(
     caches.keys().then(cacheNames => {
