@@ -110,7 +110,7 @@ const SeniorDashboard = ({ user }) => {
                 Good {getTimeGreeting()}, {user.firstName}! 👋
               </h1>
               <p className="text-lg text-gray-600 mt-1">
-                Welcome to your SeniorCare Hub dashboard
+                Welcome to your ElderShield dashboard
               </p>
             </div>
             <div className="flex items-center space-x-4">
