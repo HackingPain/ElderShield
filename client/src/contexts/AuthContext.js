@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import axios from 'axios';
 
 // Create the authentication context
 const AuthContext = createContext();
@@ -13,104 +12,88 @@ export const useAuth = () => {
   return context;
 };
 
-// Configure axios defaults
-const API_URL = process.env.REACT_APP_BACKEND_URL || 'http://localhost:8001/api';
-axios.defaults.baseURL = API_URL;
-axios.defaults.withCredentials = true;
+// Mock user data for demo purposes
+const DEMO_USERS = {
+  'senior@demo.com': {
+    id: '1',
+    email: 'senior@demo.com',
+    firstName: 'Mary',
+    lastName: 'Johnson',
+    role: 'senior',
+    subscription_tier: 'premium'
+  },
+  'caregiver@demo.com': {
+    id: '2',
+    email: 'caregiver@demo.com',
+    firstName: 'John',
+    lastName: 'Smith',
+    role: 'caregiver',
+    subscription_tier: 'standard'
+  },
+  'admin@demo.com': {
+    id: '3',
+    email: 'admin@demo.com',
+    firstName: 'Admin',
+    lastName: 'User',
+    role: 'admin',
+    subscription_tier: 'enterprise'
+  }
+};
 
 // Authentication Provider Component
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [token, setToken] = useState(localStorage.getItem('seniorcare_token'));
-
-  // Set up axios interceptor for token
-  useEffect(() => {
-    const requestInterceptor = axios.interceptors.request.use(
-      (config) => {
-        if (token) {
-          config.headers.Authorization = `Bearer ${token}`;
-        }
-        return config;
-      },
-      (error) => {
-        return Promise.reject(error);
-      }
-    );
-
-    const responseInterceptor = axios.interceptors.response.use(
-      (response) => response,
-      (error) => {
-        if (error.response?.status === 401) {
-          // Token expired or invalid
-          logout();
-          // Show user-friendly message
-          showNotification('Session expired. Please log in again.', 'error');
-        }
-        return Promise.reject(error);
-      }
-    );
-
-    return () => {
-      axios.interceptors.request.eject(requestInterceptor);
-      axios.interceptors.response.eject(responseInterceptor);
-    };
-  }, [token]);
 
   // Load user on app start
   useEffect(() => {
     const loadUser = async () => {
-      if (token) {
-        try {
-          const response = await axios.get('/auth/profile');
-          setUser(response.data.user);
-        } catch (error) {
-          console.error('Error loading user:', error);
-          localStorage.removeItem('seniorcare_token');
-          setToken(null);
+      try {
+        const savedUser = localStorage.getItem('eldershield_user');
+        if (savedUser) {
+          setUser(JSON.parse(savedUser));
         }
+      } catch (error) {
+        console.error('Error loading user:', error);
+        localStorage.removeItem('eldershield_user');
       }
       setLoading(false);
     };
 
     loadUser();
-  }, [token]);
+  }, []);
 
-  // Simple notification function (can be enhanced with toast library)
+  // Simple notification function
   const showNotification = (message, type = 'info') => {
-    // For now, use alert - can be replaced with toast library
-    if (type === 'error') {
-      alert(`Error: ${message}`);
-    } else if (type === 'success') {
-      alert(`Success: ${message}`);
-    } else {
-      alert(message);
-    }
+    console.log(`${type.toUpperCase()}: ${message}`);
+    // You can integrate with a toast library here
   };
 
-  // Login function
+  // Login function (mock implementation)
   const login = async (email, password, rememberMe = false) => {
     try {
       setLoading(true);
-      const response = await axios.post('/auth/login', {
-        email,
-        password,
-        rememberMe,
-      });
-
-      const { user: userData, token: userToken } = response.data;
-
-      // Store token
-      localStorage.setItem('seniorcare_token', userToken);
-      setToken(userToken);
-      setUser(userData);
-
-      // Show success message
-      showNotification(`Welcome back, ${userData.firstName}!`, 'success');
-
-      return { success: true, user: userData };
+      
+      // Simulate API call delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Check demo users
+      const demoUser = DEMO_USERS[email];
+      
+      if (demoUser && password === 'password123') {
+        // Store user
+        localStorage.setItem('eldershield_user', JSON.stringify(demoUser));
+        setUser(demoUser);
+        
+        showNotification(`Welcome back, ${demoUser.firstName}!`, 'success');
+        return { success: true, user: demoUser };
+      } else {
+        const errorMessage = 'Invalid credentials. Use demo accounts: senior@demo.com / caregiver@demo.com with password123';
+        showNotification(errorMessage, 'error');
+        return { success: false, error: errorMessage };
+      }
     } catch (error) {
-      const errorMessage = error.response?.data?.message || 'Login failed';
+      const errorMessage = 'Login failed. Please try again.';
       showNotification(errorMessage, 'error');
       return { success: false, error: errorMessage };
     } finally {
@@ -118,25 +101,32 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // Register function
+  // Register function (mock implementation)
   const register = async (userData) => {
     try {
       setLoading(true);
-      const response = await axios.post('/auth/register', userData);
-
-      const { user: newUser, token: userToken } = response.data;
-
-      // Store token
-      localStorage.setItem('seniorcare_token', userToken);
-      setToken(userToken);
+      
+      // Simulate API call delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Create new user
+      const newUser = {
+        id: Date.now().toString(),
+        email: userData.email,
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        role: userData.role || 'senior',
+        subscription_tier: 'standard'
+      };
+      
+      // Store user
+      localStorage.setItem('eldershield_user', JSON.stringify(newUser));
       setUser(newUser);
-
-      // Show success message
+      
       showNotification(`Welcome to ElderShield, ${newUser.firstName}!`, 'success');
-
       return { success: true, user: newUser };
     } catch (error) {
-      const errorMessage = error.response?.data?.message || 'Registration failed';
+      const errorMessage = 'Registration failed. Please try again.';
       showNotification(errorMessage, 'error');
       return { success: false, error: errorMessage };
     } finally {
@@ -147,78 +137,25 @@ export const AuthProvider = ({ children }) => {
   // Logout function
   const logout = async () => {
     try {
-      await axios.post('/auth/logout');
-    } catch (error) {
-      console.error('Logout error:', error);
-    } finally {
       // Clear local storage and state
-      localStorage.removeItem('seniorcare_token');
-      setToken(null);
+      localStorage.removeItem('eldershield_user');
       setUser(null);
       showNotification('Logged out successfully', 'success');
+    } catch (error) {
+      console.error('Logout error:', error);
     }
   };
 
   // Update profile function
   const updateProfile = async (profileData) => {
     try {
-      const response = await axios.put('/auth/profile', profileData);
-      
-      // Update user state
-      setUser(response.data.user);
+      const updatedUser = { ...user, ...profileData };
+      localStorage.setItem('eldershield_user', JSON.stringify(updatedUser));
+      setUser(updatedUser);
       showNotification('Profile updated successfully', 'success');
-      
-      return { success: true, user: response.data.user };
+      return { success: true, user: updatedUser };
     } catch (error) {
-      const errorMessage = error.response?.data?.message || 'Profile update failed';
-      showNotification(errorMessage, 'error');
-      return { success: false, error: errorMessage };
-    }
-  };
-
-  // Change password function
-  const changePassword = async (currentPassword, newPassword) => {
-    try {
-      await axios.post('/auth/change-password', {
-        currentPassword,
-        newPassword,
-      });
-      
-      showNotification('Password changed successfully', 'success');
-      return { success: true };
-    } catch (error) {
-      const errorMessage = error.response?.data?.message || 'Password change failed';
-      showNotification(errorMessage, 'error');
-      return { success: false, error: errorMessage };
-    }
-  };
-
-  // Forgot password function
-  const forgotPassword = async (email) => {
-    try {
-      const response = await axios.post('/auth/forgot-password', { email });
-      
-      showNotification('Password reset link sent to your email', 'success');
-      return { success: true, message: response.data.message };
-    } catch (error) {
-      const errorMessage = error.response?.data?.message || 'Password reset failed';
-      showNotification(errorMessage, 'error');
-      return { success: false, error: errorMessage };
-    }
-  };
-
-  // Reset password function
-  const resetPassword = async (token, password) => {
-    try {
-      await axios.post('/auth/reset-password', {
-        token,
-        password,
-      });
-      
-      showNotification('Password reset successfully', 'success');
-      return { success: true };
-    } catch (error) {
-      const errorMessage = error.response?.data?.message || 'Password reset failed';
+      const errorMessage = 'Profile update failed';
       showNotification(errorMessage, 'error');
       return { success: false, error: errorMessage };
     }
@@ -251,26 +188,17 @@ export const AuthProvider = ({ children }) => {
       : '';
   };
 
-  const isSubscriptionExpired = () => {
-    if (!user?.subscription_expires_at) return false;
-    return new Date(user.subscription_expires_at) < new Date();
-  };
-
   // Context value
   const value = {
     // State
     user,
     loading,
-    token,
     
     // Authentication methods
     login,
     register,
     logout,
     updateProfile,
-    changePassword,
-    forgotPassword,
-    resetPassword,
     
     // Utility methods
     isPremiumUser,
@@ -279,7 +207,6 @@ export const AuthProvider = ({ children }) => {
     isSenior,
     getUserFullName,
     getUserInitials,
-    isSubscriptionExpired,
     showNotification,
   };
 
