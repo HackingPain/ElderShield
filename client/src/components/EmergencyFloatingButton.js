@@ -3,7 +3,7 @@ import React from 'react';
 const EmergencyFloatingButton = () => {
   const handleEmergencyClick = () => {
     // In a real app, this would connect to the emergency system
-    if (confirm('This will contact emergency services. Do you need immediate assistance?')) {
+    if (window.confirm('This will contact emergency services. Do you need immediate assistance?')) {
       window.location.href = 'tel:911';
     }
   };
