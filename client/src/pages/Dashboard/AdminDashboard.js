@@ -78,7 +78,7 @@ const AdminDashboard = ({ user }) => {
                 Admin Dashboard 👨‍💼
               </h1>
               <p className="text-lg text-gray-600 mt-1">
-                SeniorCare Hub System Overview
+                ElderShield System Overview
               </p>
             </div>
             <div className="flex items-center space-x-4">
