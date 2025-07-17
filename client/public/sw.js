@@ -298,7 +298,7 @@ self.addEventListener('push', event => {
       // Add data for click handling
       options.data = data;
     } catch (error) {
-      console.error('SeniorCare Hub SW: Error parsing push data:', error);
+      console.error('ElderShield SW: Error parsing push data:', error);
     }
   }
 
