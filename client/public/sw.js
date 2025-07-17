@@ -430,7 +430,7 @@ async function syncCheckInData() {
     await clearStoredData('pendingCheckIns');
     console.log('ElderShield SW: Check-in data synced');
   } catch (error) {
-    console.error('SeniorCare Hub SW: Failed to sync check-in data:', error);
+    console.error('ElderShield SW: Failed to sync check-in data:', error);
   }
 }
 
