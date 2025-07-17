@@ -25,7 +25,7 @@ const Layout = ({ children }) => {
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <OfflineIndicator />
       <Header />
-      <main className="flex-1">
+      <main className="flex-1 p-4">
         {children}
       </main>
       <Footer />
