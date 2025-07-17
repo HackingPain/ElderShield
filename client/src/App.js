@@ -48,7 +48,7 @@ function App() {
     <AuthProvider>
       <SocketProvider>
         <Router>
-          <div className="App">
+          <Layout>
             <Routes>
               {/* Public Routes */}
               <Route path="/login" element={<Login />} />
