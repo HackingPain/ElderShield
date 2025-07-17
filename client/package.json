@@ -1,8 +1,8 @@
 {
-  "name": "seniorcare-hub-client",
+  "name": "eldershield-client",
   "version": "1.0.0",
   "private": true,
-  "description": "SeniorCare Hub Client - React frontend for the senior care management platform",
+  "description": "ElderShield Client - React frontend for the senior care management platform",
   "homepage": ".",
   "dependencies": {
     "@headlessui/react": "^1.7.17",
