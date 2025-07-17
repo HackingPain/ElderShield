@@ -1,8 +1,7 @@
-/* eslint-disable no-restricted-globals */
-// SeniorCare Hub Service Worker
-// Handles offline functionality, push notifications, and PWA features
+// ElderShield Service Worker
+// Provides offline functionality, push notifications, and background sync
 
-const CACHE_NAME = 'seniorcare-hub-v1.0.0';
+const CACHE_NAME = 'eldershield-v1.0.0';
 const OFFLINE_URL = '/offline.html';
 
 // Files to cache for offline functionality
