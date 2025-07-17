@@ -482,7 +482,7 @@ async function getStoredData(storeName) {
 
 async function clearStoredData(storeName) {
   return new Promise((resolve) => {
-    const request = indexedDB.open('SeniorCareOfflineDB', 1);
+    const request = indexedDB.open('ElderShieldOfflineDB', 1);
     
     request.onsuccess = () => {
       const db = request.result;
