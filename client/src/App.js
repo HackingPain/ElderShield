@@ -5,8 +5,7 @@ import { SocketProvider } from './contexts/SocketContext';
 import { useDevicePlatform } from './services/DevicePlatformService';
 
 // Components
-import Header from './components/Header';
-import Footer from './components/Footer';
+import Layout from './components/Layout';
 
 // Authentication Pages
 import Login from './pages/Auth/Login';
@@ -20,8 +19,6 @@ import DailyCheckIn from './pages/CheckIn/DailyCheckIn';
 
 // PWA Components
 import PWAInstallPrompt from './components/PWAInstallPrompt';
-import OfflineIndicator from './components/OfflineIndicator';
-import EmergencyFloatingButton from './components/EmergencyFloatingButton';
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
