@@ -542,4 +542,4 @@ function storeOfflineData(storeName, data) {
   };
 }
 
-console.log('SeniorCare Hub Service Worker loaded successfully');
+console.log('ElderShield Service Worker loaded successfully');
