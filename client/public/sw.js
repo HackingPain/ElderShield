@@ -227,7 +227,7 @@ async function handleStaticRequest(request) {
     
     return networkResponse;
   } catch (error) {
-    console.log('SeniorCare Hub SW: Static asset request failed');
+    console.log('ElderShield SW: Static asset request failed');
     return new Response('Resource not available offline', { status: 503 });
   }
 }
