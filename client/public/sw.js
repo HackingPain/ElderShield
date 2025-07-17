@@ -525,7 +525,7 @@ self.addEventListener('message', event => {
 });
 
 function storeOfflineData(storeName, data) {
-  const request = indexedDB.open('SeniorCareOfflineDB', 1);
+  const request = indexedDB.open('ElderShieldOfflineDB', 1);
   
   request.onupgradeneeded = () => {
     const db = request.result;
