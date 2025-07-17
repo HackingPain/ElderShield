@@ -382,7 +382,7 @@ self.addEventListener('notificationclick', event => {
 
 // Background Sync for offline actions
 self.addEventListener('sync', event => {
-  console.log('SeniorCare Hub SW: Background sync triggered');
+  console.log('ElderShield SW: Background sync triggered');
   
   if (event.tag === 'background-sync-emergency') {
     event.waitUntil(syncEmergencyData());
