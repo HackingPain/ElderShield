@@ -1,0 +1,133 @@
+{
+  "short_name": "ElderShield",
+  "name": "ElderShield - Family Care Coordination",
+  "description": "A secure, user-friendly platform to help families monitor, manage, and support their aging loved ones",
+  "icons": [
+    {
+      "src": "favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "logo192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "logo512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "/?source=pwa",
+  "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "theme_color": "#2563eb",
+  "background_color": "#f8fafc",
+  "orientation": "any",
+  "categories": ["health", "lifestyle", "family", "medical"],
+  "lang": "en-US",
+  "dir": "ltr",
+  "scope": "/",
+  "prefer_related_applications": false,
+  "related_applications": [
+    {
+      "platform": "play",
+      "url": "https://play.google.com/store/apps/details?id=com.seniorcarehub.app",
+      "id": "com.seniorcarehub.app"
+    },
+    {
+      "platform": "itunes",
+      "url": "https://apps.apple.com/app/seniorcare-hub/id123456789"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Emergency Alert",
+      "short_name": "Emergency",
+      "description": "Send emergency alert to caregivers",
+      "url": "/emergency?source=shortcut",
+      "icons": [
+        {
+          "src": "emergency-icon.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Daily Check-in",
+      "short_name": "Check-in",
+      "description": "Complete your daily wellness check-in",
+      "url": "/checkin?source=shortcut",
+      "icons": [
+        {
+          "src": "checkin-icon.png", 
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Medications",
+      "short_name": "Meds",
+      "description": "View and manage medications",
+      "url": "/medications?source=shortcut",
+      "icons": [
+        {
+          "src": "medication-icon.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Family Dashboard",
+      "short_name": "Family",
+      "description": "View family dashboard and messages",
+      "url": "/dashboard?source=shortcut",
+      "icons": [
+        {
+          "src": "family-icon.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "screenshot-mobile-dashboard.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Mobile Dashboard - Daily Check-ins and Health Tracking"
+    },
+    {
+      "src": "screenshot-mobile-emergency.png", 
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Emergency Alert System - One-tap Emergency Contact"
+    },
+    {
+      "src": "screenshot-tablet-dashboard.png",
+      "sizes": "1024x768",
+      "type": "image/png", 
+      "form_factor": "wide",
+      "label": "Tablet Dashboard - Complete Family Overview"
+    },
+    {
+      "src": "screenshot-tablet-kiosk.png",
+      "sizes": "1024x768", 
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Kiosk Mode - Senior-Friendly Large Interface"
+    }
+  ],
+  "handle_links": "preferred",
+  "launch_handler": {
+    "client_mode": "navigate-existing"
+  },
+  "edge_side_panel": {
+    "preferred_width": 400
+  }
+}
