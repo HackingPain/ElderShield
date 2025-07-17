@@ -450,7 +450,7 @@ async function syncMedicationData() {
     await clearStoredData('pendingMedicationLogs');
     console.log('ElderShield SW: Medication data synced');
   } catch (error) {
-    console.error('SeniorCare Hub SW: Failed to sync medication data:', error);
+    console.error('ElderShield SW: Failed to sync medication data:', error);
   }
 }
 
