@@ -27,7 +27,7 @@ self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
-        console.log('SeniorCare Hub SW: Caching static files');
+        console.log('ElderShield SW: Caching static files');
         return cache.addAll(STATIC_CACHE_URLS);
       })
       .then(() => self.skipWaiting())
