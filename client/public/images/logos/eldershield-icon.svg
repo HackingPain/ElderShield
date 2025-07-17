@@ -1,0 +1,37 @@
+<svg width="120" height="160" viewBox="0 0 120 160" xmlns="http://www.w3.org/2000/svg">
+  <!-- Blue shield background -->
+  <path d="M60 10 L100 30 L100 80 Q100 100 60 125 Q20 100 20 80 L20 30 Z" fill="#4F46E5" stroke="#3730A3" stroke-width="2"/>
+  
+  <!-- Elderly character -->
+  <!-- Head -->
+  <circle cx="60" cy="50" r="15" fill="#F4A460" stroke="#E6A86B" stroke-width="1"/>
+  
+  <!-- Hair -->
+  <path d="M50 40 Q60 35 70 40 Q72 42 70 45 Q60 38 50 45 Q48 42 50 40" fill="#D3D3D3"/>
+  
+  <!-- Glasses -->
+  <circle cx="55" cy="48" r="5" fill="none" stroke="#333" stroke-width="1.5"/>
+  <circle cx="65" cy="48" r="5" fill="none" stroke="#333" stroke-width="1.5"/>
+  <line x1="60" y1="48" x2="60" y2="48" stroke="#333" stroke-width="1.5"/>
+  
+  <!-- Eyes -->
+  <circle cx="55" cy="48" r="1.5" fill="#333"/>
+  <circle cx="65" cy="48" r="1.5" fill="#333"/>
+  
+  <!-- Mouth -->
+  <path d="M57 55 Q60 57 63 55" fill="none" stroke="#333" stroke-width="1.5"/>
+  
+  <!-- Body -->
+  <ellipse cx="60" cy="80" rx="18" ry="25" fill="#654321"/>
+  
+  <!-- Arms -->
+  <ellipse cx="45" cy="75" rx="5" ry="18" fill="#F4A460"/>
+  <ellipse cx="75" cy="75" rx="5" ry="18" fill="#F4A460"/>
+  
+  <!-- Waving hand -->
+  <circle cx="80" cy="65" r="4" fill="#F4A460"/>
+  
+  <!-- Legs -->
+  <ellipse cx="53" cy="110" rx="5" ry="18" fill="#333"/>
+  <ellipse cx="67" cy="110" rx="5" ry="18" fill="#333"/>
+</svg>
