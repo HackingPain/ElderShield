@@ -234,7 +234,7 @@ async function handleStaticRequest(request) {
 
 // Push Notification Handling
 self.addEventListener('push', event => {
-  console.log('SeniorCare Hub SW: Push notification received');
+  console.log('ElderShield SW: Push notification received');
   
   const options = {
     badge: '/logo192.png',
