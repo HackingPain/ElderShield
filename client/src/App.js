@@ -185,7 +185,7 @@ function App() {
                 </div>
               } />
             </Routes>
-          </div>
+          </Layout>
         </Router>
       </SocketProvider>
     </AuthProvider>
