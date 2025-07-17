@@ -22,7 +22,7 @@ const API_CACHE_URLS = [
 
 // Install Service Worker
 self.addEventListener('install', event => {
-  console.log('SeniorCare Hub SW: Installing...');
+  console.log('ElderShield SW: Installing...');
   
   event.waitUntil(
     caches.open(CACHE_NAME)
