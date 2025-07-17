@@ -43,11 +43,11 @@ const DEMO_USERS = {
 // Authentication Provider Component
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false); // Start with false instead of true
 
   // Load user on app start
   useEffect(() => {
-    const loadUser = async () => {
+    const loadUser = () => {
       try {
         const savedUser = localStorage.getItem('eldershield_user');
         if (savedUser) {
@@ -57,8 +57,6 @@ export const AuthProvider = ({ children }) => {
         console.error('Error loading user:', error);
         localStorage.removeItem('eldershield_user');
       }
-      // Always set loading to false after checking
-      setLoading(false);
     };
 
     loadUser();
