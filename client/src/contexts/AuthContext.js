@@ -132,7 +132,7 @@ export const AuthProvider = ({ children }) => {
       setUser(newUser);
 
       // Show success message
-      showNotification(`Welcome to SeniorCare Hub, ${newUser.firstName}!`, 'success');
+      showNotification(`Welcome to ElderShield, ${newUser.firstName}!`, 'success');
 
       return { success: true, user: newUser };
     } catch (error) {
