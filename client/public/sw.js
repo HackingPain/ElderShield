@@ -174,8 +174,8 @@ async function handlePageRequest(request) {
       </style>
     </head>
     <body>
-      <div class="offline-icon">📡</div>
-      <h1>SeniorCare Hub - Offline Mode</h1>
+      <div class="offline-icon">🛡️</div>
+      <h1>ElderShield - Offline Mode</h1>
       <p>You are currently offline. Emergency features are still available.</p>
       
       <button class="emergency-btn" onclick="window.location.href='tel:911'">
