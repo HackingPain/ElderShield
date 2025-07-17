@@ -198,7 +198,7 @@ const Login = () => {
                 <div className="w-full border-t border-gray-300" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">New to SeniorCare Hub?</span>
+                <span className="px-2 bg-white text-gray-500">New to ElderShield?</span>
               </div>
             </div>
 
