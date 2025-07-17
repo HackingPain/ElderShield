@@ -97,7 +97,7 @@ async function handleApiRequest(request) {
         return networkResponse;
       }
     } catch (error) {
-      console.log('SeniorCare Hub SW: Network failed, trying cache...');
+      console.log('ElderShield SW: Network failed, trying cache...');
       const cachedResponse = await caches.match(request);
       if (cachedResponse) {
         return cachedResponse;
