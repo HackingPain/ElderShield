@@ -79,8 +79,18 @@ const Login = () => {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         {/* Logo */}
-        <div className="flex justify-center">
-          <div className="text-4xl font-bold text-indigo-600 mb-2">🛡️</div>
+        <div className="flex justify-center mb-6">
+          <img 
+            src="/images/logos/eldershield-full-logo.svg"
+            alt="ElderShield - Senior Care Platform"
+            className="h-32 w-auto"
+            onError={(e) => {
+              // Fallback to shield emoji if logo fails to load
+              e.target.style.display = 'none';
+              e.target.nextSibling.style.display = 'block';
+            }}
+          />
+          <div className="text-4xl font-bold text-indigo-600 mb-2 hidden">🛡️</div>
         </div>
         <h2 className="text-center text-3xl font-bold text-gray-900 mb-2">
           Welcome Back
